@@ -146,7 +146,7 @@
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="source_dropdown">
                     <div class="dropdown-selected" id="source_selected_value" tabindex="0">-- 선택하세요 --</div>
-                    <ul class="dropdown-options hidden" id="source_options_list"><li data-value="source" data-type="custom"><span class="icon"></span><span class="option-content">source</span><button type="button" class="delete-btn">×</button></li><li class="add-option" id="source_add_option_button">+ 옵션 추가</li></ul>
+                    <ul class="dropdown-options hidden" id="source_options_list"><li class="add-option" id="source_add_option_button">+ 옵션 추가</li></ul>
                         <div class="add-option-input hidden" id="source_add_input_container">
                         <input type="text" id="source_add_input" placeholder="입력 후 Enter">
                     </div>
@@ -159,7 +159,7 @@
                 <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="medium_dropdown">
                     <div class="dropdown-selected" id="medium_selected_value" tabindex="0">-- 선택하세요 --</div>
-                    <ul class="dropdown-options hidden" id="medium_options_list"><li data-value="medium" data-type="custom"><span class="icon"></span><span class="option-content">medium</span><button type="button" class="delete-btn">×</button></li><li class="add-option" id="medium_add_option_button">+ 옵션 추가</li></ul>
+                    <ul class="dropdown-options hidden" id="medium_options_list"><li class="add-option" id="medium_add_option_button">+ 옵션 추가</li></ul>
                         <div class="add-option-input hidden" id="medium_add_input_container">
                         <input type="text" id="medium_add_input" placeholder="입력 후 Enter">
                     </div>
@@ -169,8 +169,8 @@
             <br><br>
 
 
-            <fieldset style="border:1px solid #ccc; padding:10px;"> <legend>UTM Campaign 구성</legend> <label>날짜 <span class="required">(필수)</span>:</label><input type="text" id="campaign_date" placeholder="YYYYMMDD" oninput="updateFinalURL()" required=""><br><br> <label>광고타입 <span class="required">(필수)</span>:</label><input type="text" id="ad_type" placeholder="display" oninput="updateFinalURL()" required=""><br><br> <label>캠페인목표:</label><input type="text" id="campaign_goal" placeholder="awareness" oninput="updateFinalURL()"><br><br> <label>기획전종류:</label><input type="text" id="event_type" placeholder="spring_sale" oninput="updateFinalURL()"><br><br> <label>상품카테고리:</label><input type="text" id="product_category" placeholder="shoes" oninput="updateFinalURL()"><br><br> <label>광고타겟:</label><input type="text" id="ad_target" placeholder="women" oninput="updateFinalURL()"><br><br> <label>소재타입:</label><input type="text" id="creative_type" placeholder="banner" oninput="updateFinalURL()"><br><br> <label>기기카테고리 <span class="required">(필수)</span>:</label><input type="text" id="device_type" placeholder="mobile" oninput="updateFinalURL()" required=""><br><br> </fieldset> <fieldset style="border:1px solid #ccc; padding:10px;"> <legend>UTM Content 구성</legend> <label>목표행동:</label><input type="text" id="content_action" placeholder="click" oninput="updateFinalURL()"><br><br> <label>추가기입사항:</label><input type="text" id="content_detail" placeholder="120X240-vertical" oninput="updateFinalURL()"><br><br> <label>버전:</label><input type="text" id="content_version" placeholder="v1" oninput="updateFinalURL()"><br><br> </fieldset> <label for="utm_term">UTM Term (선택):</label><input type="text" id="utm_term" name="utm_term" placeholder="shoes" oninput="updateFinalURL()"><br><br> <input type="hidden" id="utm_campaign" name="utm_campaign" required=""><input type="hidden" id="utm_content" name="utm_content"> <label for="final_url">최종 URL:</label><input type="text" id="final_url" style="width:100%; font-family:monospace;" readonly="" name="final_url"><button type="submit">제출</button>
-        </form>
+            <fieldset style="border:1px solid #ccc; padding:10px;"> <legend>UTM Campaign 구성</legend> <label>날짜 <span class="required">(필수)</span>:</label><input type="text" id="campaign_date" placeholder="YYYYMMDD" oninput="updateFinalURL()" required=""><br><br> <label>광고타입 <span class="required">(필수)</span>:</label><input type="text" id="ad_type" placeholder="display" oninput="updateFinalURL()" required=""><br><br> <label>캠페인목표:</label><input type="text" id="campaign_goal" placeholder="awareness" oninput="updateFinalURL()"><br><br> <label>기획전종류:</label><input type="text" id="event_type" placeholder="spring_sale" oninput="updateFinalURL()"><br><br> <label>상품카테고리:</label><input type="text" id="product_category" placeholder="shoes" oninput="updateFinalURL()"><br><br> <label>광고타겟:</label><input type="text" id="ad_target" placeholder="women" oninput="updateFinalURL()"><br><br> <label>소재타입:</label><input type="text" id="creative_type" placeholder="banner" oninput="updateFinalURL()"><br><br> <label>기기카테고리 <span class="required">(필수)</span>:</label><input type="text" id="device_type" placeholder="mobile" oninput="updateFinalURL()" required=""><br><br> </fieldset> <fieldset style="border:1px solid #ccc; padding:10px;"> <legend>UTM Content 구성</legend> <label>목표행동:</label><input type="text" id="content_action" placeholder="click" oninput="updateFinalURL()"><br><br> <label>추가기입사항:</label><input type="text" id="content_detail" placeholder="120X240-vertical" oninput="updateFinalURL()"><br><br> <label>버전:</label><input type="text" id="content_version" placeholder="v1" oninput="updateFinalURL()"><br><br> </fieldset> <label for="utm_term">UTM Term (선택):</label><input type="text" id="utm_term" name="utm_term" placeholder="shoes" oninput="updateFinalURL()"><br><br> <input type="hidden" id="utm_campaign" name="utm_campaign" required=""><input type="hidden" id="utm_content" name="utm_content"> <label for="final_url">최종 URL:</label><input type="text" id="final_url" style="width:100%; font-family:monospace;" readonly="" name="final_url"><div id="shortUrlContainer"></div>
+        <button type="submit">제출</button></form>
 
             <div id="historyTableContainer" style="margin-top: 30px;"><h2>생성 이력</h2><table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;" id="historyTable"><thead><tr><th>생성일시</th><th>Source</th><th>Medium</th><th>Campaign</th><th>Content</th><th>Term</th><th>단축 URL</th><th>원본 URL</th></tr></thead><tbody></tbody></table></div>
 
@@ -479,6 +479,37 @@
         // --- 조유하 담당 영역 예시 함수 (이전과 동일) ---
     function addHistoryRow(data) {const tableBody = document.getElementById('historyTable').getElementsByTagName('tbody')[0];const newRow = tableBody.insertRow(0);newRow.insertCell().textContent = data.createdAt || new Date().toLocaleString();newRow.insertCell().textContent = data.source;newRow.insertCell().textContent = data.medium;newRow.insertCell().textContent = data.campaign;newRow.insertCell().textContent = data.content || 'N'; newRow.insertCell().textContent = data.term || 'N'; newRow.insertCell().innerHTML = data.shortUrl ? `<a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>` : 'N/A'; newRow.insertCell().textContent = data.originalUrl;}
 
+</script>
+
+<script>
+  document.getElementById('utmForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); // 기본 submit 막음
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error('서버 응답 오류');
+
+      const result = await response.json();
+
+      // 단축 URL input+복사 버튼 삽입
+      document.getElementById('shortUrlContainer').innerHTML = result.shortUrlHtml;
+
+      // 이력 테이블 row 추가
+      document.querySelector('#historyTableContainer tbody').insertAdjacentHTML('beforeend', result.newRowHtml);
+
+      // 폼 리셋
+      form.reset();
+    } catch (error) {
+      console.error('폼 제출 실패:', error);
+    }
+  });
 </script>
 
 <grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
