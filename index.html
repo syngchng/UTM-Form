@@ -505,7 +505,7 @@
       }
 
       // shortUrlContainer를 form 바로 뒤에 삽입
-      form.insertAdjacentHTML('afterend', result.shortUrlHtml);
+      form.insertAdjacentHTML('beforeend', result.shortUrlHtml);
 
       // 이력 테이블에 새로운 row 추가
       document.querySelector('#historyTableContainer tbody').insertAdjacentHTML('beforeend', result.newRowHtml);
