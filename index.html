@@ -227,8 +227,9 @@ legend { font-weight: bold; }
         <input type="hidden" id="utm_content" name="utm_content" value="N">
 
         <label for="final_url">최종 URL :</label>
-        <input type="text" id="final_url" name="final_url_display" disabled="" style="width:100%; font-family:monospace;"> 
-        <button type="submit">제출</button>
+        <input type="text" id="final_url" name="final_url" style="width:100%; font-family:monospace;" readonly=""> 
+        <div id="shortUrlContainer"></div>
+<button type="submit">제출</button>
     </form>
 
     <div id="responseContainer">
