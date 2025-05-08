@@ -96,22 +96,18 @@ legend { font-weight: bold; }
 <div class="dv2">
     <h1>UTM 링크 생성</h1>
     <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;">
-        <thead><tr><th colspan="2">UTM 네이밍 규칙</th></tr></thead>
-        <tbody>
-            <tr><td>공통 규칙</td><td><ul><li>띄어쓰기 금지</li><li>구분자: 언더스코어('_') 및 하이픈('-') 사용</li><li>영문 네이밍: 소문자만 사용</li><li>특수문자 사용 금지 (&amp;, ?, #, ., /, \ 등)</li></ul></td></tr>
-            <tr><td>캠페인 규칙</td><td><ul><li>구성: 날짜_광고타입_캠페인목표_기획전종류_상품카테고리_광고타겟_소재타입_기기카테고리</li><li>없으면 'N'으로 채움</li><li><span class="required">필수 항목: 날짜, 광고타입, 기기카테고리</span></li></ul></td></tr>
-            <tr><td>콘텐츠 규칙</td><td><ul><li>목표행동, 추가기입사항, 버전 중 하나라도 입력되면 해당 값으로 조합</li><li>입력되지 않으면 'N'으로 처리</li></ul></td></tr>
-        </tbody>
-    </table>
+            <thead><tr><th colspan="2">UTM 네이밍 규칙</th></tr></thead>
+            <tbody><tr><td>공통 규칙</td><td><ul><li>띄어쓰기 금지</li><li>구분자: 언더스코어('_') 및 하이픈('-') 사용</li><li>영문 네이밍: 소문자만 사용</li><li>특수문자 사용 금지 (&amp;, ?, #, ., /, \ 등)</li></ul></td></tr><tr><td>캠페인 규칙</td><td><ul><li>구성: 날짜_광고타입_캠페인목표_기획전종류_상품카테고리_광고타겟_소재타입_기기카테고리</li><li>없으면 'N'으로 채움</li><li><span class="required">필수 항목: 날짜, 광고 타입, 기기 카테고리</span></li></ul></td></tr><tr><td>콘텐츠 규칙</td><td><ul><li>목표 행동, 추가 기입 사항, 버전 중 하나라도 입력되면 해당 값으로 조합</li><li>입력되지 않으면 'N'으로 처리</li></ul></td></tr></tbody>
+            </table>
     <br>
 </div>
 
 <div class="dv3">
     <form id="utmForm">
-        <label for="page_url">Page URL <span class="required">(필수)</span>:</label>
+        <label for="page_url">Page URL <span class="required">(필수)</span> : </label>
         <input type="text" id="page_url" name="page_url" required="" placeholder="https://example.com" oninput="updateFinalURL()"><br><br>
 
-        <label for="source">UTM Source <span class="required">(필수)</span>:</label>
+        <label for="source">UTM Source <span class="required">(필수)</span> : </label>
         <div class="custom-dropdown-container">
             <div class="custom-dropdown" id="source_dropdown">
                 <div class="dropdown-selected" id="source_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -124,7 +120,7 @@ legend { font-weight: bold; }
         </div>
         <br><br>
 
-        <label for="medium">UTM Medium <span class="required">(필수)</span>:</label>
+        <label for="medium">UTM Medium <span class="required">(필수)</span> : </label>
         <div class="custom-dropdown-container">
             <div class="custom-dropdown" id="medium_dropdown">
                 <div class="dropdown-selected" id="medium_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -140,10 +136,10 @@ legend { font-weight: bold; }
         <fieldset style="border:1px solid #ccc; padding:10px;">
             <legend>UTM Campaign 구성</legend>
         
-            <label for="campaign_date">날짜 <span class="required">(필수)</span>:</label>
+            <label for="campaign_date">날짜 <span class="required">(필수)</span> :</label>
             <input type="text" id="campaign_date" name="campaign_date_display" placeholder="YYYYMMDD" oninput="updateFinalURL()" required=""><br><br>
             
-            <label for="ad_type">광고타입 <span class="required">(필수)</span>:</label>
+            <label for="ad_type">광고 타입 <span class="required">(필수)</span> : </label>
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="ad_type_dropdown">
                     <div class="dropdown-selected" id="ad_type_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -152,7 +148,7 @@ legend { font-weight: bold; }
                 </div><input type="hidden" id="ad_type" name="ad_type_val" required="">
             </div><br><br>
             
-            <label for="campaign_goal">캠페인목표:</label>
+            <label for="campaign_goal">캠페인 목표 :</label>
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="campaign_goal_dropdown">
                     <div class="dropdown-selected" id="campaign_goal_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -161,7 +157,7 @@ legend { font-weight: bold; }
                 </div><input type="hidden" id="campaign_goal" name="campaign_goal_val">
             </div><br><br>
             
-            <label for="event_type">기획전종류:</label>
+            <label for="event_type">기획전 종류 :</label>
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="event_type_dropdown">
                     <div class="dropdown-selected" id="event_type_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -170,7 +166,7 @@ legend { font-weight: bold; }
                 </div><input type="hidden" id="event_type" name="event_type_val"> 
             </div><br><br>
 
-            <label for="product_category">상품카테고리:</label>
+            <label for="product_category">상품 카테고리 :</label>
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="product_category_dropdown">
                     <div class="dropdown-selected" id="product_category_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -179,7 +175,7 @@ legend { font-weight: bold; }
                 </div><input type="hidden" id="product_category" name="product_category_val"> 
             </div><br><br>
 
-            <label for="ad_target">광고타겟:</label>
+            <label for="ad_target">광고 타겟 :</label>
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="ad_target_dropdown">
                     <div class="dropdown-selected" id="ad_target_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -188,7 +184,7 @@ legend { font-weight: bold; }
                 </div><input type="hidden" id="ad_target" name="ad_target_val"> 
             </div><br><br>
 
-            <label for="creative_type">소재타입:</label>
+            <label for="creative_type">소재 타입 :</label>
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="creative_type_dropdown">
                     <div class="dropdown-selected" id="creative_type_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -197,7 +193,7 @@ legend { font-weight: bold; }
                 </div><input type="hidden" id="creative_type" name="creative_type_val"> 
             </div><br><br>
 
-            <label for="device_type">기기카테고리 <span class="required">(필수)</span>:</label>
+            <label for="device_type">기기 카테고리 <span class="required">(필수)</span> : </label>
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="device_type_dropdown">
                     <div class="dropdown-selected" id="device_type_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -209,7 +205,7 @@ legend { font-weight: bold; }
     
         <fieldset style="border:1px solid #ccc; padding:10px;">
             <legend>UTM Content 구성</legend>
-            <label for="content_action">목표행동:</label>
+            <label for="content_action">목표 행동 :</label>
             <div class="custom-dropdown-container">
                 <div class="custom-dropdown" id="content_action_dropdown">
                     <div class="dropdown-selected" id="content_action_selected_value" tabindex="0">-- 선택하세요 --</div>
@@ -218,19 +214,19 @@ legend { font-weight: bold; }
                 </div><input type="hidden" id="content_action" name="content_action_val"> 
             </div><br><br>
         
-            <label for="content_detail">추가기입사항:</label>
+            <label for="content_detail">추가 기입 사항 :</label>
             <input type="text" id="content_detail" name="content_detail_display" placeholder="120X240-vertical" oninput="updateFinalURL()"><br><br> 
-            <label for="content_version">버전:</label>
+            <label for="content_version">버전 :</label>
             <input type="text" id="content_version" name="content_version_display" placeholder="v1" oninput="updateFinalURL()"><br><br> 
         </fieldset>
 
-        <label for="utm_term">UTM Term (선택):</label>
+        <label for="utm_term">UTM Term (선택) :</label>
         <input type="text" id="utm_term" name="utm_term" placeholder="shoes" oninput="updateFinalURL()"><br><br>
 
         <input type="hidden" id="utm_campaign" name="utm_campaign" required="" value="N_N_N_N_N_N_N_N">
         <input type="hidden" id="utm_content" name="utm_content" value="N">
 
-        <label for="final_url">최종 URL:</label>
+        <label for="final_url">최종 URL :</label>
         <input type="text" id="final_url" name="final_url_display" disabled="" style="width:100%; font-family:monospace;"> 
         <button type="submit">제출</button>
     </form>
@@ -243,10 +239,7 @@ legend { font-weight: bold; }
 
     <div id="historyTableContainer" style="margin-top: 30px;">
         <h2>생성 이력</h2>
-        <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;" id="historyTable">
-            <thead><tr><th>생성일시</th><th>Source</th><th>Medium</th><th>Campaign</th><th>Content</th><th>Term</th><th>페이지 URL</th><th>최종 URL</th><th>단축 URL</th></tr></thead>
-            <tbody><tr><td>2025-04-24T06:39:01+0000</td><td>github</td><td>test</td><td>20250424_builder-test_N_N_N_N_N_pc</td><td>N_N_N</td><td>N</td><td style="word-break: break-all;"><a href="https://test.com/" target="_blank">https://test.com</a></td><td style="word-break: break-all;"><a href="https://test.com/?utm_source=github&amp;utm_medium=test&amp;utm_campaign=20250424_builder-test_N_N_N_N_N_pc" target="_blank">https://test.com/?utm_source=github&amp;utm_medium=test&amp;utm_campaign=20250424_builder-test_N_N_N_N_N_pc</a></td><td style="word-break: break-all;"><a href="https://bit.ly/3S3CceZ" target="_blank">https://bit.ly/3S3CceZ</a></td></tr><tr><td>2025-04-28T01:39:10+0000</td><td>github</td><td>test</td><td>20250428_builder-test_N_N_N_N_N_pc</td><td>N_N_N</td><td>N</td><td style="word-break: break-all;"><a href="https://test.com/" target="_blank">https://test.com</a></td><td style="word-break: break-all;"><a href="https://test.com/?utm_source=github&amp;utm_medium=test&amp;utm_campaign=20250428_builder-test_N_N_N_N_N_pc" target="_blank">https://test.com/?utm_source=github&amp;utm_medium=test&amp;utm_campaign=20250428_builder-test_N_N_N_N_N_pc</a></td><td style="word-break: break-all;"><a href="https://bit.ly/3EFXL2o" target="_blank">https://bit.ly/3EFXL2o</a></td></tr><tr><td>2025-04-29T06:16:29+0000</td><td>n8n</td><td>test</td><td>20250429_utm-build_N_N_N_N_N_pc</td><td>N_N_N</td><td>N</td><td style="word-break: break-all;"><a href="https://ga4sample.cafe24.com/" target="_blank">https://ga4sample.cafe24.com</a></td><td style="word-break: break-all;"><a href="https://ga4sample.cafe24.com/?utm_source=n8n&amp;utm_medium=test&amp;utm_campaign=20250429_utm-build_N_N_N_N_N_pc" target="_blank">https://ga4sample.cafe24.com/?utm_source=n8n&amp;utm_medium=test&amp;utm_campaign=20250429_utm-build_N_N_N_N_N_pc</a></td><td style="word-break: break-all;"><a href="https://bit.ly/3Sd9xEk" target="_blank">https://bit.ly/3Sd9xEk</a></td></tr><tr><td>2025-04-30T00:36:42+0000</td><td>n8n</td><td>test</td><td>20250430_utm-build_final_N_N_N_test_mobile</td><td>link-build_N_N</td><td>N</td><td style="word-break: break-all;"><a href="https://ga4sample.cafe24.com/" target="_blank">https://ga4sample.cafe24.com</a></td><td style="word-break: break-all;"><a href="https://ga4sample.cafe24.com/?utm_source=n8n&amp;utm_medium=test&amp;utm_campaign=20250430_utm-build_final_N_N_N_test_mobile&amp;utm_content=link-build_N_N" target="_blank">https://ga4sample.cafe24.com?utm_source=n8n&amp;utm_medium=test&amp;utm_campaign=20250430_utm-build_final_N_N_N_test_mobile&amp;utm_content=link-build_N_N</a></td><td style="word-break: break-all;"><a href="https://bit.ly/4jAc7R4" target="_blank">https://bit.ly/4jAc7R4</a></td></tr></tbody>
-        </table>
+        <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;" id="historyTable"><thead><tr><th>생성 일시</th><th>Source</th><th>Medium</th><th>Campaign</th><th>Content</th><th>Term</th><th>단축 URL</th><th>원본 URL</th></tr></thead><tbody></tbody></table>
     </div>
 </div>
 </div>
