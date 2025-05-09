@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- saved from url=(0051)https://choi-yoonhyuk.github.io/source_medium_drop/ -->
-<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- saved from url=(0036)https://syngchng.github.io/UTM-Form/ -->
+<html lang="ko" data-tag-assistant-present="pending:1746756917538"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UTM 링크 생성기 (병합)</title>
@@ -240,7 +240,7 @@ legend { font-weight: bold; }
 
     <div id="historyTableContainer" style="margin-top: 30px;">
         <h2>생성 이력</h2>
-        <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;" id="historyTable"><thead><tr><th>생성 일시</th><th>Source</th><th>Medium</th><th>Campaign</th><th>Content</th><th>Term</th><th>단축 URL</th><th>원본 URL</th></tr></thead><tbody></tbody></table>
+        <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;" id="historyTable"><thead><tr><th>생성 일시</th><th>Source</th><th>Medium</th><th>Campaign</th><th>Content</th><th>Term</th><th>단축 URL</th><th>원본 URL</th></tr></thead><tbody><tr><td>2025-04-24T06:39:01+0000</td><td>github</td><td>test</td><td>20250424_builder-test_N_N_N_N_N_pc</td><td>N_N_N</td><td>N</td><td style="word-break: break-all;"><a href="https://test.com/" target="_blank">https://test.com</a></td><td style="word-break: break-all;"><a href="https://test.com/?utm_source=github&amp;utm_medium=test&amp;utm_campaign=20250424_builder-test_N_N_N_N_N_pc" target="_blank">https://test.com/?utm_source=github&amp;utm_medium=test&amp;utm_campaign=20250424_builder-test_N_N_N_N_N_pc</a></td><td style="word-break: break-all;"><a href="https://bit.ly/3S3CceZ" target="_blank">https://bit.ly/3S3CceZ</a></td></tr><tr><td>2025-04-28T01:39:10+0000</td><td>github</td><td>test</td><td>20250428_builder-test_N_N_N_N_N_pc</td><td>N_N_N</td><td>N</td><td style="word-break: break-all;"><a href="https://test.com/" target="_blank">https://test.com</a></td><td style="word-break: break-all;"><a href="https://test.com/?utm_source=github&amp;utm_medium=test&amp;utm_campaign=20250428_builder-test_N_N_N_N_N_pc" target="_blank">https://test.com/?utm_source=github&amp;utm_medium=test&amp;utm_campaign=20250428_builder-test_N_N_N_N_N_pc</a></td><td style="word-break: break-all;"><a href="https://bit.ly/3EFXL2o" target="_blank">https://bit.ly/3EFXL2o</a></td></tr><tr><td>2025-04-29T06:16:29+0000</td><td>n8n</td><td>test</td><td>20250429_utm-build_N_N_N_N_N_pc</td><td>N_N_N</td><td>N</td><td style="word-break: break-all;"><a href="https://ga4sample.cafe24.com/" target="_blank">https://ga4sample.cafe24.com</a></td><td style="word-break: break-all;"><a href="https://ga4sample.cafe24.com/?utm_source=n8n&amp;utm_medium=test&amp;utm_campaign=20250429_utm-build_N_N_N_N_N_pc" target="_blank">https://ga4sample.cafe24.com/?utm_source=n8n&amp;utm_medium=test&amp;utm_campaign=20250429_utm-build_N_N_N_N_N_pc</a></td><td style="word-break: break-all;"><a href="https://bit.ly/3Sd9xEk" target="_blank">https://bit.ly/3Sd9xEk</a></td></tr><tr><td>2025-04-30T00:36:42+0000</td><td>n8n</td><td>test</td><td>20250430_utm-build_final_N_N_N_test_mobile</td><td>link-build_N_N</td><td>N</td><td style="word-break: break-all;"><a href="https://ga4sample.cafe24.com/" target="_blank">https://ga4sample.cafe24.com</a></td><td style="word-break: break-all;"><a href="https://ga4sample.cafe24.com/?utm_source=n8n&amp;utm_medium=test&amp;utm_campaign=20250430_utm-build_final_N_N_N_test_mobile&amp;utm_content=link-build_N_N" target="_blank">https://ga4sample.cafe24.com?utm_source=n8n&amp;utm_medium=test&amp;utm_campaign=20250430_utm-build_final_N_N_N_test_mobile&amp;utm_content=link-build_N_N</a></td><td style="word-break: break-all;"><a href="https://bit.ly/4jAc7R4" target="_blank">https://bit.ly/4jAc7R4</a></td></tr></tbody></table>
     </div>
 </div>
 </div>
@@ -792,9 +792,44 @@ function copyLink() {
 // 페이지 로드 시 한 번 호출 (DOMContentLoaded에서 이미 updateFinalURL 호출)
 // 모든 필드에 oninput="updateFinalURL()"가 있으므로 초기 로드 외에는 자동 업데이트됨.
 // updateFinalURL(); 
+</script><script>
+  document.getElementById('utmForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error('서버 응답 오류');
+
+      const result = await response.json();
+
+      // 만약 이미 shortUrlContainer가 있으면 삭제 (중복 방지)
+      const existingShortUrl = document.getElementById('shortUrlContainer');
+      if (existingShortUrl) {
+        existingShortUrl.remove();
+      }
+
+      // shortUrlContainer를 form 바로 뒤에 삽입
+      form.insertAdjacentHTML('beforeend', result.shortUrlHtml);
+
+      // 이력 테이블에 새로운 row 추가
+      document.querySelector('#historyTableContainer tbody').insertAdjacentHTML('beforeend', result.newRowHtml);
+
+      // 폼 리셋
+      form.reset();
+    } catch (error) {
+      console.error('폼 제출 실패:', error);
+    }
+  });
 </script>
 
-</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+<grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
       div.grammarly-desktop-integration {
         position: absolute;
         width: 1px;
@@ -814,4 +849,4 @@ function copyLink() {
       div.grammarly-desktop-integration:before {
         content: attr(data-content);
       }
-    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></body></html>
