@@ -202,10 +202,13 @@ legend { font-weight: bold; }
 // --- 설정값 ---
 // const LS_KEY_PREFIX = 'utmGenerator_standalone_'; // 더 이상 사용하지 않음
 // const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=1861589139&single=true&output=csv';
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pubhtml?gid=663849837&single=true';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=663849837&single=true&output=csv';
 // const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/19P0nk0XDI5HwwkCvZnwGa7C22A-RL6MSzcVx7mjYYRs/edit?gid=663849837&output=csv';
 const N8N_WEBHOOK_URL = 'https://entrench-consulting.app.n8n.cloud/webhook/utm-form'; // <-- 사용자 실제 n8n URL로 변경 필수!
-const HISTORY_JSON_URL = 'https://raw.githubusercontent.com/choi-yoonhyuk/source_medium_drop/main/n8n-builder.json'; 
+// const HISTORY_JSON_URL = 'https://raw.githubusercontent.com/choi-yoonhyuk/source_medium_drop/main/n8n-builder.json'; 
+const GOOGLE_SHEET_HISTORY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=1831366188&single=true&output=csv'; // History 시트의 CSV 게시 URL로 변경
+// 참고: 위 URL은 예시이며, 실제 History 시트를 "웹에 게시"하여 "CSV" 형식으로 생성된 URL을 사용해야 합니다.
+// gid=1831366188는 맞지만, 그 앞의 /e/2PACX... 부분은 실제 게시된 URL로 대체해야 합니다.
 
 const dropdownBaseIds = [
     'source', 'medium', 'ad_type', 'campaign_goal', 'event_type', 
@@ -570,37 +573,104 @@ function updateFinalURL() {
     document.getElementById("final_url").value = finalURLGenerated;
 }
 
-async function fetchHistoryData() { 
+async function fetchHistoryData() {
+    showLoading("이력 로딩 중 (Google Sheet)...");
     try {
-        const response = await fetch(HISTORY_JSON_URL);
+        const response = await fetch(GOOGLE_SHEET_HISTORY_URL); // 새로운 URL 사용
         if (!response.ok) {
-            console.warn(`히스토리 파일(${HISTORY_JSON_URL}) 없음 또는 불러오기 실패:`, response.status, response.statusText);
-            return []; 
+            console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 없음 또는 불러오기 실패:`, response.status, response.statusText);
+            hideLoading();
+            return [];
         }
-        const responseText = await response.text(); 
-        if (!responseText) {
-            console.warn(`히스토리 파일(${HISTORY_JSON_URL}) 내용이 비어있습니다.`);
-            return []; 
+        const csvText = await response.text();
+        if (!csvText) {
+            console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 내용이 비어있습니다.`);
+            hideLoading();
+            return [];
         }
-        const data = JSON.parse(responseText); 
-        if (!Array.isArray(data)) {
-            console.warn(`히스토리 데이터(${HISTORY_JSON_URL}) 형식 오류. 배열이 아닙니다. 실제 내용:`, data);
-            return []; 
+
+        // CSV 파싱 (기존 n8n JSON의 history 시트 컬럼명에 맞춰야 함)
+        const lines = csvText.split(/\r?\n/);
+        if (lines.length < 2) { // 헤더 + 데이터 최소 1줄
+            console.warn("Google Sheet 히스토리 데이터가 충분하지 않습니다.");
+            hideLoading();
+            return [];
         }
-        return data.sort((a, b) => {
-            const timeA = a?.timestamp || (a?.formData && a.formData.timestamp) || 0;
-            const timeB = b?.timestamp || (b?.formData && b.formData.timestamp) || 0;
-            const dateA = new Date(timeA);
-            const dateB = new Date(timeB);
-            const valA = !isNaN(dateA.getTime()) ? dateA.getTime() : 0;
-            const valB = !isNaN(dateB.getTime()) ? dateB.getTime() : 0;
-            return valB - valA; 
+        const headers = lines[0].split(',').map(h => String(h).trim().replace(/^"|"$/g, ''));
+        const historyData = [];
+
+        // History 시트의 컬럼명에 맞춰 인덱스 찾기
+        const createdAtIdx = headers.indexOf('생성일시'); // 실제 시트 컬럼명으로 변경
+        const sourceIdx = headers.indexOf('Source');
+        const mediumIdx = headers.indexOf('Medium');
+        const campaignIdx = headers.indexOf('Campaign');
+        const contentIdx = headers.indexOf('Content');
+        const termIdx = headers.indexOf('Term');
+        const pageUrlIdx = headers.indexOf('페이지 URL');
+        const finalUrlIdx = headers.indexOf('최종 URL');
+        const shortUrlIdx = headers.indexOf('단축 URL');
+
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i]) continue;
+            const columns = lines[i].split(',').map(s => String(s).trim().replace(/^"|"$/g, ''));
+            const entry = {};
+            if (createdAtIdx > -1) entry.timestamp = columns[createdAtIdx]; // 'timestamp' 키로 통일
+            if (sourceIdx > -1) entry.utm_source = columns[sourceIdx];
+            if (mediumIdx > -1) entry.utm_medium = columns[mediumIdx];
+            if (campaignIdx > -1) entry.utm_campaign_combined = columns[campaignIdx];
+            if (contentIdx > -1) entry.utm_content_combined = columns[contentIdx];
+            if (termIdx > -1) entry.utm_term = columns[termIdx];
+            if (pageUrlIdx > -1) entry.page_url = columns[pageUrlIdx];
+            if (finalUrlIdx > -1) entry.final_url = columns[finalUrlIdx];
+            if (shortUrlIdx > -1) entry.short_url = columns[shortUrlIdx];
+            historyData.push(entry);
+        }
+
+        // 정렬 로직 (timestamp 기준)
+        return historyData.sort((a, b) => {
+            const dateA = new Date(a.timestamp || 0);
+            const dateB = new Date(b.timestamp || 0);
+            return (isNaN(dateB.getTime()) ? 0 : dateB.getTime()) - (isNaN(dateA.getTime()) ? 0 : dateA.getTime());
         });
+
     } catch (error) {
-        console.warn(`히스토리 데이터(${HISTORY_JSON_URL}) 로딩 또는 파싱 실패:`, error);
-        return []; 
+        console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 로딩 또는 파싱 실패:`, error);
+        return [];
+    } finally {
+        hideLoading();
     }
 }
+// async function fetchHistoryData() { 
+//     try {
+//         const response = await fetch(HISTORY_JSON_URL);
+//         if (!response.ok) {
+//             console.warn(`히스토리 파일(${HISTORY_JSON_URL}) 없음 또는 불러오기 실패:`, response.status, response.statusText);
+//             return []; 
+//         }
+//         const responseText = await response.text(); 
+//         if (!responseText) {
+//             console.warn(`히스토리 파일(${HISTORY_JSON_URL}) 내용이 비어있습니다.`);
+//             return []; 
+//         }
+//         const data = JSON.parse(responseText); 
+//         if (!Array.isArray(data)) {
+//             console.warn(`히스토리 데이터(${HISTORY_JSON_URL}) 형식 오류. 배열이 아닙니다. 실제 내용:`, data);
+//             return []; 
+//         }
+//         return data.sort((a, b) => {
+//             const timeA = a?.timestamp || (a?.formData && a.formData.timestamp) || 0;
+//             const timeB = b?.timestamp || (b?.formData && b.formData.timestamp) || 0;
+//             const dateA = new Date(timeA);
+//             const dateB = new Date(timeB);
+//             const valA = !isNaN(dateA.getTime()) ? dateA.getTime() : 0;
+//             const valB = !isNaN(dateB.getTime()) ? dateB.getTime() : 0;
+//             return valB - valA; 
+//         });
+//     } catch (error) {
+//         console.warn(`히스토리 데이터(${HISTORY_JSON_URL}) 로딩 또는 파싱 실패:`, error);
+//         return []; 
+//     }
+// }
 async function renderHistoryTable() { 
     const tableBody = document.getElementById('historyTable')?.getElementsByTagName('tbody')[0];
     if (!tableBody) { console.error("History table body (tbody) 요소를 찾을 수 없습니다!"); return; }
@@ -680,6 +750,7 @@ function copyLink() {
 // ===================================================================================
 // === 폼 제출 이벤트 리스너 (핵심 로직: 마스터 옵션 중복 확인 및 n8n 데이터 구성) ===
 // ===================================================================================
+// index.html 내 첫 번째(주요) submit 이벤트 리스너
 document.getElementById("utmForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     showLoading("UTM 링크 생성 및 전송 중...");
@@ -692,114 +763,127 @@ document.getElementById("utmForm").addEventListener("submit", async (e) => {
     ];
 
     for (let field of requiredFieldsCheck) {
-        let valueToCheck = getValueOrN(field.id); 
-        if (valueToCheck === "n") { 
+        // getValueOrN은 hidden input의 소문자화된 값을 가져오거나, "-- 선택하세요 --"일 경우 "n"을 반환.
+        // 페이지 URL, 날짜 등 직접 입력 필드는 해당 input의 값을 직접 확인해야 함.
+        let valueToCheck;
+        if (document.getElementById(field.id).tagName === 'INPUT' && document.getElementById(field.id).type === 'text') {
+            valueToCheck = document.getElementById(field.id).value.trim();
+        } else { // 드롭다운의 hidden input
+            valueToCheck = getValueOrN(field.id);
+        }
+
+        if (valueToCheck === "" || valueToCheck === "n") {
             alert(`필수 항목 '${field.name}'을(를) 선택 또는 입력해주세요.`);
             hideLoading();
             const elementToFocus = document.getElementById(field.id);
-            if (document.getElementById(`${field.id}_dropdown`)) { 
-                 document.getElementById(`${field.id}_selected_value`)?.click();
+            if (document.getElementById(`${field.id}_dropdown`)) {
+                 document.getElementById(`${field.id}_selected_value`)?.focus(); // 드롭다운 선택창에 포커스
             } else {
                  elementToFocus?.focus();
             }
             return;
         }
     }
-    
-    // 2. 최종 URL 및 조합된 캠페인/콘텐츠 값 업데이트 (getValueOrN이 소문자화된 값을 사용하므로 URL도 소문자 기반으로 생성됨)
-    updateFinalURL(); 
+
+    // 2. 최종 URL 및 조합된 캠페인/콘텐츠 값 업데이트
+    updateFinalURL(); // 이 함수는 내부적으로 getValueOrN을 사용하여 hidden input 값을 참조
 
     // 3. n8n으로 전송할 최종 데이터 객체 구성
     const formDataForN8n = {
-        // (A) "UTM 빌드 로그 시트" 기록용 필드들 
-        //     (getValueOrN을 통해 소문자화된 값 또는 'n'을 가져오고, 'n'이 아니면 포함)
-        page_url: document.getElementById('page_url').value.trim(), // page_url은 원본 그대로
-        utm_campaign_combined: document.getElementById('utm_campaign').value.trim(), 
-        utm_content_combined: document.getElementById('utm_content').value.trim(), 
-        final_url: document.getElementById('final_url').value.trim(),
+        page_url: document.getElementById('page_url').value.trim(),
+        utm_campaign_combined: document.getElementById('utm_campaign').value.trim(),
+        utm_content_combined: document.getElementById('utm_content').value.trim(),
+        final_url: document.getElementById('final_url').value.trim(), // 최종 생성된 URL (UTM 파라미터 포함)
         timestamp: new Date().toISOString()
     };
 
-    // 로그용 개별 파라미터들: 값이 "n"이 아닐 때만 formDataForN8n에 추가
+    // 각 UTM 파라미터의 최종 선택/입력된 값 (소문자화된 key 값)을 formDataForN8n에 추가
+    // parametersToLog 배열은 keyForN8n을 정의하여, Map Fields 노드가 이 키들을 사용하게 함.
     const parametersToLog = [
         { id: 'source', keyForN8n: 'utm_source' }, { id: 'medium', keyForN8n: 'utm_medium' },
-        { id: 'campaign_date', keyForN8n: 'campaign_date' }, { id: 'ad_type', keyForN8n: 'ad_type' },
-        { id: 'campaign_goal', keyForN8n: 'campaign_goal' }, { id: 'event_type', keyForN8n: 'event_type' },
-        { id: 'product_category', keyForN8n: 'product_category' }, { id: 'ad_target', keyForN8n: 'ad_target' },
-        { id: 'creative_type', keyForN8n: 'creative_type' }, { id: 'device_type', keyForN8n: 'device_type' },
-        { id: 'content_action', keyForN8n: 'content_action' }, { id: 'content_detail', keyForN8n: 'content_detail' },
-        { id: 'content_version', keyForN8n: 'content_version' }, { id: 'utm_term', keyForN8n: 'utm_term' }
+        { id: 'campaign_date', keyForN8n: 'campaign_date' }, // 직접 입력 값
+        { id: 'ad_type', keyForN8n: 'ad_type' },
+        { id: 'campaign_goal', keyForN8n: 'campaign_goal' },
+        { id: 'event_type', keyForN8n: 'event_type' },
+        { id: 'product_category', keyForN8n: 'product_category' },
+        { id: 'ad_target', keyForN8n: 'ad_target' },
+        { id: 'creative_type', keyForN8n: 'creative_type' },
+        { id: 'device_type', keyForN8n: 'device_type' },
+        { id: 'content_action', keyForN8n: 'content_action' },
+        { id: 'content_detail', keyForN8n: 'content_detail' },     // 직접 입력 값
+        { id: 'content_version', keyForN8n: 'content_version' }, // 직접 입력 값
+        { id: 'utm_term', keyForN8n: 'utm_term' }                 // 직접 입력 값
     ];
 
     for (const param of parametersToLog) {
-        const elementValue = getValueOrN(param.id); // 소문자화된 값 또는 "n"
-        if (elementValue !== "n") { 
+        let elementValue;
+        const inputElement = document.getElementById(param.id);
+        // 직접 입력 필드 (text input) 와 커스텀 드롭다운 (hidden input) 구분
+        if (inputElement.name.endsWith('_form')) { // 예: campaign_date_form, content_detail_form 등
+            elementValue = inputElement.value.trim(); // 원본 텍스트 값 사용 (필요시 소문자화)
+            if (elementValue === "") elementValue = "n"; // 빈 값은 "n"으로 처리
+        } else { // 드롭다운 (hidden input 사용)
+            elementValue = getValueOrN(param.id); // getValueOrN은 이미 소문자화 및 "n" 처리
+        }
+
+        if (elementValue !== "n") {
             formDataForN8n[param.keyForN8n] = elementValue;
         }
-        // "n"인 경우 해당 키를 formDataForN8n에 아예 포함시키지 않음
     }
 
-    // (B) "옵션 마스터 시트"에 추가할 새로운 옵션 값들만 식별하여 객체로 구성
-    const optionsForMasterUpdate = {}; 
+    // "params" (옵션 마스터) 시트에 추가할 "새로운" 옵션 값들만 식별
+    const optionsForMasterUpdate = {};
     console.log("--- Identifying new options to add to master sheet (Submit Event) ---");
-    for (const baseId of dropdownBaseIds) { 
-        const hiddenInputElement = document.getElementById(baseId); 
-        const selectedValueDisplayElement = document.getElementById(`${baseId}_selected_value`);
+    for (const baseId of dropdownBaseIds) { // dropdownBaseIds: 드롭다운의 기본 ID 목록
+        const selectedValueDisplayElement = document.getElementById(`${baseId}_selected_value`); // 화면 표시 텍스트
+        // const hiddenInputElement = document.getElementById(baseId); // 실제 선택된 key 값 (소문자)
 
-        if (hiddenInputElement && selectedValueDisplayElement) {
-            const selectedValueDisplayText = selectedValueDisplayElement.textContent.trim(); // 화면에 표시된 원본 값 (대소문자 유지)
+        if (selectedValueDisplayElement) {
+            const selectedValueDisplayText = selectedValueDisplayElement.textContent.trim(); // 화면에 표시된 원본 값
 
-            // 상세 디버깅 로그 활성화 원하시면 아래 주석 해제
-            // const selectedValueKeyDebug = hiddenInputElement.value.trim(); 
-            // console.log(`\n[Submit Check - ${baseId}] Current Display Text: '${selectedValueDisplayText}', Current Hidden Input Key: '${selectedValueKeyDebug}'`);
-            
             if (selectedValueDisplayText && selectedValueDisplayText.toLowerCase() !== "n" && selectedValueDisplayText !== "-- 선택하세요 --" && selectedValueDisplayText.toLowerCase() !== "undefined") {
                 const masterListForThisCategory = masterOptionLists[baseId] || new Set();
-                // console.log(`[Submit Check - ${baseId}] Master list from CSV (original case) for comparison:`, Array.from(masterListForThisCategory));
-                
-                let isNewForMaster = true; 
+                let isNewForMaster = true;
                 const lowercasedSelectedDisplayText = selectedValueDisplayText.toLowerCase();
-                // console.log(`[Submit Check - ${baseId}] Lowercased Selected Display Text for comparison: '${lowercasedSelectedDisplayText}'`);
 
                 if (masterListForThisCategory.size > 0) {
                     for (const masterOption of masterListForThisCategory) {
-                        const lowercasedMasterOption = String(masterOption).trim().toLowerCase();
-                        if (lowercasedMasterOption === lowercasedSelectedDisplayText) {
-                            isNewForMaster = false; 
-                            // console.log(`[Submit Check - ${baseId}] Match found! '${selectedValueDisplayText}' is NOT new.`);
+                        if (String(masterOption).trim().toLowerCase() === lowercasedSelectedDisplayText) {
+                            isNewForMaster = false;
                             break;
                         }
                     }
                 }
-                // 마스터 목록이 비어있더라도, selectedValueDisplayText가 유효한 값이면 새것으로 간주 (단, "n"이나 "undefined"는 아님)
-                
                 if (isNewForMaster) {
-                    // console.log(`[Submit Check - ${baseId}] '${selectedValueDisplayText}' IS new. Adding to optionsForMasterUpdate object with key 'add_master_${baseId}'.`);
-                    optionsForMasterUpdate[`add_master_${baseId}`] = selectedValueDisplayText; 
+                    // n8n으로 보낼 때는 Map Fields의 키와 맞추기 위해 baseId를 사용
+                    // 예: optionsForMasterUpdate['utm_source'] = '새로운소스명'
+                    // 실제 CSV 컬럼명과의 매핑은 n8n의 Format to Update Sheet 노드에서 처리
+                    const keyForN8n = parametersToLog.find(p => p.id === baseId)?.keyForN8n || baseId;
+                    optionsForMasterUpdate[keyForN8n] = selectedValueDisplayText; // 원본 텍스트 값 전송
                 }
             }
         }
     }
-    // optionsForMasterUpdate 객체가 비어있지 않은 경우에만 formDataForN8n에 추가
     if (Object.keys(optionsForMasterUpdate).length > 0) {
         formDataForN8n.options_to_add_to_master_sheet = optionsForMasterUpdate;
     }
     console.log("--- 최종 formDataForN8n (to be sent to n8n):", formDataForN8n, " ---");
-    
+
 
     // 4. n8n으로 데이터 전송 및 응답 처리
     try {
-        const n8nUrl = N8N_WEBHOOK_URL; 
-        if (!n8nUrl || (n8nUrl.startsWith('http://localhost') && window.location.protocol === 'https:')) { //  || n8nUrl === 'https://entrench-consulting.app.n8n.cloud/webhook/utm-form'
-            let alertMessage = "n8n 웹훅 URL이 올바르게 설정되지 않았습니다.\n";
-            if (n8nUrl.startsWith('http://localhost') && window.location.protocol === 'https:') {
-                alertMessage = "경고: 현재 페이지는 HTTPS이나 n8n 웹훅은 HTTP 로컬호스트입니다. 실제 환경에서는 정상 동작하지 않을 수 있습니다.\n(혼합 콘텐츠 오류 발생 가능)\n";
-            }
-            alertMessage += "\nUTM 링크가 생성되었습니다 (단축 및 이력/시트 저장 안됨):\n" + (formDataForN8n.final_url || document.getElementById('final_url').value.trim());
-            alert(alertMessage);
-            document.getElementById("responseContainer").style.display = "none";
+        const n8nUrl = N8N_WEBHOOK_URL; // Production URL 사용 중
+
+        // URL 유효성 검사 (localhost HTTPS 경고만 남기거나, 필요에 따라 단순화)
+        if (!n8nUrl) {
+            alert("n8n 웹훅 URL이 설정되지 않았습니다.\nUTM 링크가 생성되었습니다 (단축 및 이력/시트 저장 안됨):\n" + formDataForN8n.final_url);
             hideLoading();
-            return; 
+            return;
+        }
+        if (n8nUrl.startsWith('http://localhost') && window.location.protocol === 'https:') {
+            alert("경고: 현재 페이지는 HTTPS이나 n8n 웹훅은 HTTP 로컬호스트입니다...\nUTM 링크가 생성되었습니다 (단축 및 이력/시트 저장 안됨):\n" + formDataForN8n.final_url);
+            hideLoading();
+            return;
         }
 
         const res = await fetch(n8nUrl, {
@@ -809,31 +893,112 @@ document.getElementById("utmForm").addEventListener("submit", async (e) => {
         });
 
         if (!res.ok) {
-            const errorText = await res.text(); 
+            const errorText = await res.text();
             throw new Error(`n8n 웹훅 응답 오류 (${res.status}): ${errorText || res.statusText}`);
         }
-        
-        const result = await res.json(); 
 
-        if (result.short_url) {
-            document.getElementById("shortUrlInput").value = result.short_url;
-            document.getElementById("responseContainer").style.display = "block";
-            await renderHistoryTable(); 
-            alert("UTM 링크 생성, 단축 및 시트 저장 요청 완료!\n최종 URL: " + (formDataForN8n.final_url || document.getElementById('final_url').value.trim()) + "\n단축 URL: " + result.short_url);
+        const result = await res.json(); // n8n의 "Respond to Webhook" 노드가 보내는 JSON 응답
+        console.log("Response from n8n:", result);
+
+        // HTML 조각 삽입 (두 번째 리스너의 기능 통합)
+        const formElement = document.getElementById('utmForm');
+        const responseContainerDiv = document.getElementById("responseContainer");
+        const shortUrlInputEl = document.getElementById("shortUrlInput");
+
+        // shortUrlHtml 처리
+        if (result.shortUrlHtml && formElement) {
+            // 기존 shortUrlContainer가 있다면 내용만 교체, 없다면 form 뒤에 삽입
+            let shortUrlDisplayDiv = document.getElementById('shortUrlContainer');
+            if (!shortUrlDisplayDiv) {
+                shortUrlDisplayDiv = document.createElement('div');
+                shortUrlDisplayDiv.id = 'shortUrlContainer';
+                formElement.insertAdjacentElement('afterend', shortUrlDisplayDiv); // form 다음에 삽입
+            }
+            shortUrlDisplayDiv.innerHTML = result.shortUrlHtml;
+
+            // 추가적으로 #responseContainer의 input에도 값을 채워넣을 수 있음
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = result.shortUrlHtml;
+            const shortUrlFromHtml = tempDiv.querySelector('#shortUrlOutput')?.value || tempDiv.querySelector('#shortUrl')?.value;
+            if (shortUrlInputEl && shortUrlFromHtml) {
+                shortUrlInputEl.value = shortUrlFromHtml;
+            }
+             if (responseContainerDiv) responseContainerDiv.style.display = "block";
+
+        } else if (result.short_url && shortUrlInputEl) { // short_url 키만 오는 경우
+            shortUrlInputEl.value = result.short_url;
+            if (responseContainerDiv) responseContainerDiv.style.display = "block";
         } else {
-            alert("단축 URL을 받아오지 못했습니다. n8n 워크플로우 응답을 확인하세요.\n(시트 저장은 시도되었을 수 있습니다)\n최종 URL: " + (formDataForN8n.final_url || document.getElementById('final_url').value.trim()));
-            document.getElementById("responseContainer").style.display = "none";
-            await renderHistoryTable(); 
+            console.warn("n8n 응답에 shortUrlHtml 또는 short_url 키가 없습니다.");
+            if (responseContainerDiv) responseContainerDiv.style.display = "none";
         }
+
+        // 이력 테이블 업데이트 (newTableBodyHtml 또는 newRowHtml 사용)
+        const historyTableBody = document.getElementById('historyTable')?.getElementsByTagName('tbody')[0];
+        if (historyTableBody) {
+            if (result.newTableBodyHtml) { // 전체 tbody를 교체 (n8n에서 모든 행을 다시 만들어 보내는 경우)
+                historyTableBody.innerHTML = result.newTableBodyHtml;
+            }
+            // 만약 n8n에서 새 행 하나만 보내고 프론트에서 추가하는 로직을 원한다면,
+            // result.newSingleRowHtml (예시) 같은 키로 받고 아래처럼 추가:
+            // else if (result.newSingleRowHtml) {
+            // historyTableBody.insertAdjacentHTML('afterbegin', result.newSingleRowHtml); // 맨 위에 추가
+            // }
+        }
+
+        if (result.shortUrlHtml || result.short_url) {
+             alert("UTM 링크 생성, 단축 및 시트 저장 요청 완료!");
+        } else {
+             alert("단축 URL을 받아오지 못했습니다. n8n 워크플로우 응답을 확인하세요.\n(시트 저장은 시도되었을 수 있습니다)\n최종 URL: " + formDataForN8n.final_url);
+        }
+
     } catch (err) {
         console.error("n8n 전송 또는 처리 오류:", err);
-        alert(`서버 통신 또는 처리 중 오류가 발생했습니다: ${err.message}\n(UTM 링크는 생성되었으나 단축 및 이력/시트 저장은 실패했을 수 있습니다)\n최종 URL: ${formDataForN8n.final_url || document.getElementById('final_url').value.trim()}`);
+        alert(`서버 통신 또는 처리 중 오류가 발생했습니다: ${err.message}\n(UTM 링크는 생성되었으나 단축 및 이력/시트 저장은 실패했을 수 있습니다)\n최종 URL: ${formDataForN8n.final_url}`);
         document.getElementById("responseContainer").style.display = "none";
     } finally {
         hideLoading();
-        location.reload(); 
+        await renderHistoryTable(); // 항상 최신 이력으로 테이블 다시 그림
+        document.getElementById("utmForm").reset();
+        // 드롭다운 기본값 재설정 및 최종 URL 필드 업데이트
+        dropdownBaseIds.forEach(baseId => { // 필수 항목 기본값 재설정
+            if (baseId === 'source') setSelectedDropdownValue(baseId, 'google');
+            else if (baseId === 'medium') setSelectedDropdownValue(baseId, 'cpc');
+            else if (baseId === 'ad_type') setSelectedDropdownValue(baseId, 'da');
+            else if (baseId === 'device_type') setSelectedDropdownValue(baseId, 'mo');
+            else setSelectedDropdownValue(baseId, ''); // 나머지 선택적 항목은 '-- 선택하세요 --'
+        });
+        updateFinalURL();
     }
 });
+
+// 드롭다운 값을 설정하는 헬퍼 함수 (필요시 사용)
+function setSelectedDropdownValue(baseId, valueToSet) {
+    const selectedValueDiv = document.getElementById(`${baseId}_selected_value`);
+    const hiddenInput = document.getElementById(baseId);
+    const optionsList = document.getElementById(`${baseId}_options_list`);
+
+    if (!selectedValueDiv || !hiddenInput || !optionsList) return;
+
+    if (valueToSet === '') { // "-- 선택하세요 --" 로 초기화
+        selectedValueDiv.textContent = '-- 선택하세요 --';
+        hiddenInput.value = '';
+        return;
+    }
+
+    let optionFound = false;
+    optionsList.querySelectorAll('li[data-value]').forEach(li => {
+        if (li.dataset.value === valueToSet.toLowerCase()) {
+            selectedValueDiv.textContent = li.querySelector('.option-content')?.textContent || valueToSet;
+            hiddenInput.value = li.dataset.value;
+            optionFound = true;
+        }
+    });
+    if (!optionFound) { // 옵션 목록에 없는 값이라면 (예: 초기화 시 기본값)
+         selectedValueDiv.textContent = valueToSet; // 표시 텍스트만이라도 설정
+         hiddenInput.value = valueToSet.toLowerCase();
+    }
+}
 </script>
 <!-- <script>
   document.getElementById('utmForm').addEventListener('submit', async function(event) {
