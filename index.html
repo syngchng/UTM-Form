@@ -795,10 +795,10 @@ document.getElementById("utmForm").addEventListener("submit", async (e) => {
     // 4. n8n으로 데이터 전송 및 응답 처리
     try {
         const n8nUrl = N8N_WEBHOOK_URL; 
-        if (!n8nUrl || n8nUrl === '여기에_N8N_WEBHOOK_PRODUCTION_URL_입력하세요' || (n8nUrl.startsWith('http://localhost') && window.location.protocol === 'https:')) {
+        if (!n8nUrl || n8nUrl === 'https://entrench-consulting.app.n8n.cloud/webhook-test/utm-form' || (n8nUrl.startsWith('http://localhost') && window.location.protocol === 'https:')) {
             let alertMessage = "n8n 웹훅 URL이 올바르게 설정되지 않았습니다.\n";
             if (n8nUrl.startsWith('http://localhost') && window.location.protocol === 'https:') {
-                alertMessage = "경고: 현재 페이지는 HTTPS이나 n8n 웹훅은 HTTP 로컬호스트입니다. 실제 환경에서는 정상 동작하지 않을 수 있습니다.\n(혼합 콘텐츠 오류 발생 가능)\n";
+                alertMessage = "경고: 현재 페이지는 HTTPS이나 n8n 웹훅은 HTTP 로컬 호스트입니다. 실제 환경에서는 정상 동작하지 않을 수 있습니다.\n(혼합 콘텐츠 오류 발생 가능)\n";
             }
             alertMessage += "\nUTM 링크가 생성되었습니다 (단축 및 이력/시트 저장 안됨):\n" + (formDataForN8n.final_url || document.getElementById('final_url').value.trim());
             alert(alertMessage);
