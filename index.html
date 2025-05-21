@@ -1,1006 +1,1530 @@
 <!DOCTYPE html>
-<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="ko">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UTM 링크 생성기</title>
-<style>
-/* 기본 스타일 */
-body { font-family: sans-serif; padding: 20px; font-size: 14px; }
-.dv1, .dv2, .dv3 { margin-bottom: 20px; }
-.button-container { margin-bottom: 20px; position: relative; width: fit-content; display: inline-block; margin: 0 0 20px 50px; } 
-.button-container button { padding: 10px 15px; font-size: 1em; cursor: pointer; background-color: #fb0e69; color: white; border: none; border-radius: 5px; }
-.button-container button:hover { background-color: #f81e72; }
-label { display: inline-block; min-width: 120px; margin-bottom: 5px; vertical-align: top; padding-top: 8px; }
-input[type="text"] { padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; min-width: 200px; vertical-align: middle; }
-input[type="text"]#final_url { background-color: #eee; }
-button { padding: 8px 15px; margin-left: 5px; cursor: pointer; vertical-align: middle; }
-fieldset { margin-bottom: 20px; border:1px solid #ccc; padding:10px; }
-legend { font-weight: bold; }
-.required { color: red; font-weight: bold; }
-.hidden { display: none !important; }
-#loadingIndicator { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; display: none; }
-.custom-dropdown-container { display: inline-block; vertical-align: top; }
-.custom-dropdown { position: relative; display: inline-block; min-width: 200px; width: auto; max-width: 300px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff; margin-bottom: 10px; }
-.dropdown-selected { padding: 8px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-.dropdown-selected::after { content: '▼'; font-size: 0.8em; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #888; }
-.dropdown-options { position: absolute; top: 100%; left: 0; right: 0; background-color: #fff; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; max-height: 200px; overflow-y: auto; list-style: none; padding: 0; margin: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.dropdown-options li { padding: 8px 10px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; white-space: nowrap; }
-.dropdown-options li:hover { background-color: #f0f0f0; }
-.dropdown-options li .option-content { flex-grow: 1; margin-left: 8px; overflow: hidden; text-overflow: ellipsis; }
-.dropdown-options li .icon { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: #ddd; flex-shrink: 0; }
-.dropdown-options li[data-type="default"] .icon { background-color: #aaa; }
-.dropdown-options li[data-type="custom"] .icon { background-color: #6aabff; }
-.dropdown-options li .delete-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.1em; padding: 0 5px; margin-left: 10px; flex-shrink: 0; font-weight: bold; }
-.dropdown-options li .delete-btn:hover { color: #f00; }
-.dropdown-options li[data-type="default"] .delete-btn { display: none; }
-.dropdown-options .add-option { color: #007bff; font-weight: bold; border-top: 1px solid #eee; }
-.add-option-input { padding: 5px; border-top: 1px solid #eee; background-color: #f9f9f9; }
-.add-option-input input[type="text"] { width: calc(100% - 16px); margin: 0; box-sizing: border-box; }
-#responseContainer { display: none; margin-top: 20px; }
-#responseContainer input[type="text"] { width: calc(100% - 100px); margin-right: 10px; }
-</style>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTM 링크 생성기</title>
+    <style>
+        /* 기본 스타일 */
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .dv1,
+        .dv2,
+        .dv3 {
+            margin-bottom: 20px;
+        }
+
+        .button-container {
+            margin-bottom: 20px;
+            position: relative;
+            width: fit-content;
+            display: inline-block;
+            margin: 0 0 20px 50px;
+        }
+
+        .button-container button {
+            padding: 10px 15px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #fb0e69;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .button-container button:hover {
+            background-color: #f81e72;
+        }
+
+        label {
+            display: inline-block;
+            min-width: 120px;
+            margin-bottom: 5px;
+            vertical-align: top;
+            padding-top: 8px;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-width: 200px;
+            vertical-align: middle;
+        }
+
+        input[type="text"]#final_url {
+            background-color: #eee;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin-left: 5px;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        fieldset {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        legend {
+            font-weight: bold;
+        }
+
+        .required {
+            color: red;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #loadingIndicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            display: none;
+        }
+
+        .custom-dropdown-container {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .custom-dropdown {
+            position: relative;
+            display: inline-block;
+            min-width: 200px;
+            width: auto;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .dropdown-selected {
+            padding: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        .dropdown-selected::after {
+            content: '▼';
+            font-size: 0.8em;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-options li {
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+        }
+
+        .dropdown-options li:hover {
+            background-color: #f0f0f0;
+        }
+
+        .dropdown-options li .option-content {
+            flex-grow: 1;
+            margin-left: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropdown-options li .icon {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ddd;
+            flex-shrink: 0;
+        }
+
+        .dropdown-options li[data-type="default"] .icon {
+            background-color: #aaa;
+        }
+
+        .dropdown-options li[data-type="custom"] .icon {
+            background-color: #6aabff;
+        }
+
+        .dropdown-options li .delete-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 0 5px;
+            margin-left: 10px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .dropdown-options li .delete-btn:hover {
+            color: #f00;
+        }
+
+        .dropdown-options li[data-type="default"] .delete-btn {
+            display: none;
+        }
+
+        .dropdown-options .add-option {
+            color: #007bff;
+            font-weight: bold;
+            border-top: 1px solid #eee;
+        }
+
+        .add-option-input {
+            padding: 5px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+
+        .add-option-input input[type="text"] {
+            width: calc(100% - 16px);
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        #responseContainer {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #responseContainer input[type="text"] {
+            width: calc(100% - 100px);
+            margin-right: 10px;
+        }
+    </style>
 </head>
+
 <body data-new-gr-c-s-check-loaded="14.1235.0" data-gr-ext-installed="">
-<div id="loadingIndicator" style="display: none;">이력 로딩 중...</div>
+    <div id="loadingIndicator" style="display: none;">이력 로딩 중...</div>
 
-<div class="dv1">
-<div class="dv2">
-    
-    <h1 style="display: inline-block;">UTM 링크 생성기</h1>
-    <div class="button-container">
-        <button onclick="location.href='https://syngchng.github.io/UTM-Param-Value-List/';">UTM 옵션 목록</button>
-        <button onclick="location.href='https://syngchng.github.io/UTM-History/';">UTM 생성 이력</button>
-        </div><table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;">
-        <thead><tr><th colspan="2">UTM 네이밍 규칙</th></tr></thead>
-        <tbody>
-            <tr><td>공통 규칙</td><td><ul><li>띄어쓰기 금지</li><li>구분자: 언더스코어('_') 및 하이픈('-') 사용</li><li>영문 네이밍: 소문자만 사용</li><li>특수문자 사용 금지 (&amp;, ?, #, ., /, \ 등)</li></ul></td></tr>
-            <tr><td>캠페인 규칙</td><td><ul><li>구성: 날짜_광고타입_캠페인목표_기획전종류_상품카테고리_광고타겟_소재타입_기기카테고리</li><li>없으면 'N'으로 채움</li><li><span class="required">필수 항목: 날짜, 광고 타입, 기기 카테고리</span></li></ul></td></tr>
-            <tr><td>콘텐츠 규칙</td><td><ul><li>목표행동, 추가기입사항, 버전 중 하나라도 입력되면 해당 값으로 조합</li><li>입력되지 않으면 'N'으로 처리</li></ul></td></tr>
-        </tbody>
-    </table>
-    <br>
-</div>
+    <div class="dv1">
+        <div class="dv2">
 
-<div class="dv3">
-    <form id="utmForm" action="https://entrench-consulting.app.n8n.cloud/webhook/utm-form" method="POST">
-        <label for="page_url">Page URL <span class="required">(필수)</span> :</label>
-        <input type="text" id="page_url" name="page_url_form" required="" placeholder="https://example.com" oninput="updateFinalURL()"><br><br>
-
-        <label for="source">UTM Source <span class="required">(필수)</span> :</label>
-        <div class="custom-dropdown-container">
-            <div class="custom-dropdown" id="source_dropdown">
-                <div class="dropdown-selected" id="source_selected_value" tabindex="0">google</div>
-                <ul class="dropdown-options hidden" id="source_options_list"><li data-value="newsletter" data-type="default"><span class="icon"></span><span class="option-content">newsletter</span></li><li data-value="google" data-type="default"><span class="icon"></span><span class="option-content">google</span></li><li data-value="gdn" data-type="default"><span class="icon"></span><span class="option-content">gdn</span></li><li data-value="youtube" data-type="default"><span class="icon"></span><span class="option-content">youtube</span></li><li data-value="facebook" data-type="default"><span class="icon"></span><span class="option-content">facebook</span></li><li data-value="instagram" data-type="default"><span class="icon"></span><span class="option-content">instagram</span></li><li data-value="naver" data-type="default"><span class="icon"></span><span class="option-content">naver</span></li><li data-value="kakao" data-type="default"><span class="icon"></span><span class="option-content">kakao</span></li><li data-value="bing" data-type="default"><span class="icon"></span><span class="option-content">bing</span></li><li data-value="yahoo" data-type="default"><span class="icon"></span><span class="option-content">yahoo</span></li><li data-value="karrot" data-type="default"><span class="icon"></span><span class="option-content">karrot</span></li><li data-value="criteo" data-type="default"><span class="icon"></span><span class="option-content">criteo</span></li><li data-value="tiktok" data-type="default"><span class="icon"></span><span class="option-content">tiktok</span></li><li data-value="twitter" data-type="default"><span class="icon"></span><span class="option-content">twitter</span></li><li data-value="pinterest" data-type="default"><span class="icon"></span><span class="option-content">pinterest</span></li><li data-value="linkedin" data-type="default"><span class="icon"></span><span class="option-content">linkedin</span></li><li data-value="taboola" data-type="default"><span class="icon"></span><span class="option-content">taboola</span></li><li data-value="mobon" data-type="default"><span class="icon"></span><span class="option-content">mobon</span></li><li data-value="tistory" data-type="default"><span class="icon"></span><span class="option-content">tistory</span></li><li data-value="toss" data-type="default"><span class="icon"></span><span class="option-content">toss</span></li><li data-value="internal" data-type="default"><span class="icon"></span><span class="option-content">internal</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.source }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.source }}</span></li><li class="add-option" id="source_add_option_button">+ 옵션 추가</li></ul>
-                <div class="add-option-input hidden" id="source_add_input_container">
-                    <input type="text" id="source_add_input" placeholder="입력 후 Enter">
-                </div>
+            <h1 style="display: inline-block;">UTM 링크 생성기</h1>
+            <div class="button-container">
+                <button onclick="location.href='https://syngchng.github.io/UTM-Param-Value-List/';">UTM 옵션 목록</button>
+                <button onclick="location.href='https://syngchng.github.io/UTM-History/';">UTM 생성 이력</button>
             </div>
-            <input type="hidden" id="source" name="source_hidden" required="" value="google">
+            <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th colspan="2">UTM 네이밍 규칙</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>공통 규칙</td>
+                        <td>
+                            <ul>
+                                <li>띄어쓰기 금지</li>
+                                <li>구분자: 언더스코어('_') 및 하이픈('-') 사용</li>
+                                <li>영문 네이밍: 소문자만 사용</li>
+                                <li>특수문자 사용 금지 (&amp;, ?, #, ., /, \ 등)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>캠페인 규칙</td>
+                        <td>
+                            <ul>
+                                <li>구성: 날짜_광고타입_캠페인목표_기획전종류_상품카테고리_광고타겟_소재타입_기기카테고리</li>
+                                <li>없으면 'N'으로 채움</li>
+                                <li><span class="required">필수 항목: 날짜, 광고 타입, 기기 카테고리</span></li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>콘텐츠 규칙</td>
+                        <td>
+                            <ul>
+                                <li>목표행동, 추가기입사항, 버전 중 하나라도 입력되면 해당 값으로 조합</li>
+                                <li>입력되지 않으면 'N'으로 처리</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
         </div>
-        <br><br>
 
-        <label for="medium">UTM Medium <span class="required">(필수)</span> :</label>
-        <div class="custom-dropdown-container">
-            <div class="custom-dropdown" id="medium_dropdown">
-                <div class="dropdown-selected" id="medium_selected_value" tabindex="0">cpc</div>
-                <ul class="dropdown-options hidden" id="medium_options_list"><li data-value="cpc" data-type="default"><span class="icon"></span><span class="option-content">cpc</span></li><li data-value="display" data-type="default"><span class="icon"></span><span class="option-content">display</span></li><li data-value="paid_social" data-type="default"><span class="icon"></span><span class="option-content">paid_social</span></li><li data-value="email" data-type="default"><span class="icon"></span><span class="option-content">email</span></li><li data-value="affiliate" data-type="default"><span class="icon"></span><span class="option-content">affiliate</span></li><li data-value="video" data-type="default"><span class="icon"></span><span class="option-content">video</span></li><li data-value="social" data-type="default"><span class="icon"></span><span class="option-content">social</span></li><li data-value="sms" data-type="default"><span class="icon"></span><span class="option-content">sms</span></li><li data-value="app_push" data-type="default"><span class="icon"></span><span class="option-content">app_push</span></li><li data-value="web_push" data-type="default"><span class="icon"></span><span class="option-content">web_push</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.medium }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.medium }}</span></li><li class="add-option" id="medium_add_option_button">+ 옵션 추가</li></ul>
-                <div class="add-option-input hidden" id="medium_add_input_container">
-                    <input type="text" id="medium_add_input" placeholder="입력 후 Enter">
+        <div class="dv3">
+            <form id="utmForm" action="https://entrench-consulting.app.n8n.cloud/webhook/utm-form" method="POST">
+                <label for="page_url">Page URL <span class="required">(필수)</span> :</label>
+                <input type="text" id="page_url" name="page_url_form" required="" placeholder="https://example.com"
+                    oninput="updateFinalURL()"><br><br>
+
+                <label for="source">UTM Source <span class="required">(필수)</span> :</label>
+                <div class="custom-dropdown-container">
+                    <div class="custom-dropdown" id="source_dropdown">
+                        <div class="dropdown-selected" id="source_selected_value" tabindex="0">google</div>
+                        <ul class="dropdown-options hidden" id="source_options_list">
+                            <li data-value="newsletter" data-type="default"><span class="icon"></span><span
+                                    class="option-content">newsletter</span></li>
+                            <li data-value="google" data-type="default"><span class="icon"></span><span
+                                    class="option-content">google</span></li>
+                            <li data-value="gdn" data-type="default"><span class="icon"></span><span
+                                    class="option-content">gdn</span></li>
+                            <li data-value="youtube" data-type="default"><span class="icon"></span><span
+                                    class="option-content">youtube</span></li>
+                            <li data-value="facebook" data-type="default"><span class="icon"></span><span
+                                    class="option-content">facebook</span></li>
+                            <li data-value="instagram" data-type="default"><span class="icon"></span><span
+                                    class="option-content">instagram</span></li>
+                            <li data-value="naver" data-type="default"><span class="icon"></span><span
+                                    class="option-content">naver</span></li>
+                            <li data-value="kakao" data-type="default"><span class="icon"></span><span
+                                    class="option-content">kakao</span></li>
+                            <li data-value="bing" data-type="default"><span class="icon"></span><span
+                                    class="option-content">bing</span></li>
+                            <li data-value="yahoo" data-type="default"><span class="icon"></span><span
+                                    class="option-content">yahoo</span></li>
+                            <li data-value="karrot" data-type="default"><span class="icon"></span><span
+                                    class="option-content">karrot</span></li>
+                            <li data-value="criteo" data-type="default"><span class="icon"></span><span
+                                    class="option-content">criteo</span></li>
+                            <li data-value="tiktok" data-type="default"><span class="icon"></span><span
+                                    class="option-content">tiktok</span></li>
+                            <li data-value="twitter" data-type="default"><span class="icon"></span><span
+                                    class="option-content">twitter</span></li>
+                            <li data-value="pinterest" data-type="default"><span class="icon"></span><span
+                                    class="option-content">pinterest</span></li>
+                            <li data-value="linkedin" data-type="default"><span class="icon"></span><span
+                                    class="option-content">linkedin</span></li>
+                            <li data-value="taboola" data-type="default"><span class="icon"></span><span
+                                    class="option-content">taboola</span></li>
+                            <li data-value="mobon" data-type="default"><span class="icon"></span><span
+                                    class="option-content">mobon</span></li>
+                            <li data-value="tistory" data-type="default"><span class="icon"></span><span
+                                    class="option-content">tistory</span></li>
+                            <li data-value="toss" data-type="default"><span class="icon"></span><span
+                                    class="option-content">toss</span></li>
+                            <li data-value="internal" data-type="default"><span class="icon"></span><span
+                                    class="option-content">internal</span></li>
+                            <li data-value="{{ $(&#39;code2&#39;).item.body.source }}" data-type="default"><span
+                                    class="icon"></span><span class="option-content">{{ $('Code2').item.body.source
+                                    }}</span></li>
+                            <li class="add-option" id="source_add_option_button">+ 옵션 추가</li>
+                        </ul>
+                        <div class="add-option-input hidden" id="source_add_input_container">
+                            <input type="text" id="source_add_input" placeholder="입력 후 Enter">
+                        </div>
+                    </div>
+                    <input type="hidden" id="source" name="source_hidden" required="" value="google">
                 </div>
+                <br><br>
+
+                <label for="medium">UTM Medium <span class="required">(필수)</span> :</label>
+                <div class="custom-dropdown-container">
+                    <div class="custom-dropdown" id="medium_dropdown">
+                        <div class="dropdown-selected" id="medium_selected_value" tabindex="0">cpc</div>
+                        <ul class="dropdown-options hidden" id="medium_options_list">
+                            <li data-value="cpc" data-type="default"><span class="icon"></span><span
+                                    class="option-content">cpc</span></li>
+                            <li data-value="display" data-type="default"><span class="icon"></span><span
+                                    class="option-content">display</span></li>
+                            <li data-value="paid_social" data-type="default"><span class="icon"></span><span
+                                    class="option-content">paid_social</span></li>
+                            <li data-value="email" data-type="default"><span class="icon"></span><span
+                                    class="option-content">email</span></li>
+                            <li data-value="affiliate" data-type="default"><span class="icon"></span><span
+                                    class="option-content">affiliate</span></li>
+                            <li data-value="video" data-type="default"><span class="icon"></span><span
+                                    class="option-content">video</span></li>
+                            <li data-value="social" data-type="default"><span class="icon"></span><span
+                                    class="option-content">social</span></li>
+                            <li data-value="sms" data-type="default"><span class="icon"></span><span
+                                    class="option-content">sms</span></li>
+                            <li data-value="app_push" data-type="default"><span class="icon"></span><span
+                                    class="option-content">app_push</span></li>
+                            <li data-value="web_push" data-type="default"><span class="icon"></span><span
+                                    class="option-content">web_push</span></li>
+                            <li data-value="{{ $(&#39;code2&#39;).item.body.medium }}" data-type="default"><span
+                                    class="icon"></span><span class="option-content">{{ $('Code2').item.body.medium
+                                    }}</span></li>
+                            <li class="add-option" id="medium_add_option_button">+ 옵션 추가</li>
+                        </ul>
+                        <div class="add-option-input hidden" id="medium_add_input_container">
+                            <input type="text" id="medium_add_input" placeholder="입력 후 Enter">
+                        </div>
+                    </div>
+                    <input type="hidden" id="medium" name="medium_hidden" required="" value="cpc">
+                </div>
+                <br><br>
+
+                <fieldset style="border:1px solid #ccc; padding:10px;">
+                    <legend>UTM Campaign 구성</legend>
+                    <label for="campaign_date">날짜 <span class="required">(필수)</span> :</label>
+                    <input type="text" id="campaign_date" name="campaign_date_form" placeholder="YYYYMMDD"
+                        oninput="updateFinalURL()" required=""><br><br>
+                    <label for="ad_type">광고 타입 <span class="required">(필수)</span> :</label>
+                    <div class="custom-dropdown-container">
+                        <div class="custom-dropdown" id="ad_type_dropdown">
+                            <div class="dropdown-selected" id="ad_type_selected_value" tabindex="0">da</div>
+                            <ul class="dropdown-options hidden" id="ad_type_options_list">
+                                <li data-value="da" data-type="default"><span class="icon"></span><span
+                                        class="option-content">da</span></li>
+                                <li data-value="sa" data-type="default"><span class="icon"></span><span
+                                        class="option-content">sa</span></li>
+                                <li data-value="{{ $(&#39;code2&#39;).item.body.ad_type }}" data-type="default"><span
+                                        class="icon"></span><span class="option-content">{{ $('Code2').item.body.ad_type
+                                        }}</span></li>
+                                <li class="add-option" id="ad_type_add_option_button">+ 옵션 추가</li>
+                            </ul>
+                            <div class="add-option-input hidden" id="ad_type_add_input_container"><input type="text"
+                                    id="ad_type_add_input" placeholder="입력 후 Enter"></div>
+                        </div><input type="hidden" id="ad_type" name="ad_type_hidden" required="" value="da">
+                    </div><br><br>
+                    <label for="campaign_goal">캠페인 목표 :</label>
+                    <div class="custom-dropdown-container">
+                        <div class="custom-dropdown" id="campaign_goal_dropdown">
+                            <div class="dropdown-selected" id="campaign_goal_selected_value" tabindex="0">-- 선택하세요 --
+                            </div>
+                            <ul class="dropdown-options hidden" id="campaign_goal_options_list">
+                                <li data-value="traffic" data-type="default"><span class="icon"></span><span
+                                        class="option-content">traffic</span></li>
+                                <li data-value="conv" data-type="default"><span class="icon"></span><span
+                                        class="option-content">conv</span></li>
+                                <li data-value="reach" data-type="default"><span class="icon"></span><span
+                                        class="option-content">reach</span></li>
+                                <li data-value="view" data-type="default"><span class="icon"></span><span
+                                        class="option-content">view</span></li>
+                                <li data-value="tcpa" data-type="default"><span class="icon"></span><span
+                                        class="option-content">tcpa</span></li>
+                                <li data-value="click" data-type="default"><span class="icon"></span><span
+                                        class="option-content">click</span></li>
+                                <li data-value="cpm" data-type="default"><span class="icon"></span><span
+                                        class="option-content">cpm</span></li>
+                                <li data-value="branding" data-type="default"><span class="icon"></span><span
+                                        class="option-content">branding</span></li>
+                                <li data-value="purchase" data-type="default"><span class="icon"></span><span
+                                        class="option-content">purchase</span></li>
+                                <li data-value="appinstall" data-type="default"><span class="icon"></span><span
+                                        class="option-content">appinstall</span></li>
+                                <li data-value="{{ $(&#39;code2&#39;).item.body.campaign_goal }}" data-type="default">
+                                    <span class="icon"></span><span class="option-content">{{
+                                        $('Code2').item.body.campaign_goal }}</span></li>
+                                <li class="add-option" id="campaign_goal_add_option_button">+ 옵션 추가</li>
+                            </ul>
+                            <div class="add-option-input hidden" id="campaign_goal_add_input_container"><input
+                                    type="text" id="campaign_goal_add_input" placeholder="입력 후 Enter"></div>
+                        </div><input type="hidden" id="campaign_goal" name="campaign_goal_hidden">
+                    </div><br><br>
+                    <label for="event_type">기획전 종류 :</label>
+                    <div class="custom-dropdown-container">
+                        <div class="custom-dropdown" id="event_type_dropdown">
+                            <div class="dropdown-selected" id="event_type_selected_value" tabindex="0">-- 선택하세요 --</div>
+                            <ul class="dropdown-options hidden" id="event_type_options_list">
+                                <li data-value="promotion" data-type="default"><span class="icon"></span><span
+                                        class="option-content">promotion</span></li>
+                                <li data-value="pre" data-type="default"><span class="icon"></span><span
+                                        class="option-content">pre</span></li>
+                                <li data-value="season" data-type="default"><span class="icon"></span><span
+                                        class="option-content">season</span></li>
+                                <li data-value="flash" data-type="default"><span class="icon"></span><span
+                                        class="option-content">flash</span></li>
+                                <li data-value="inven" data-type="default"><span class="icon"></span><span
+                                        class="option-content">inven</span></li>
+                                <li data-value="anni" data-type="default"><span class="icon"></span><span
+                                        class="option-content">anni</span></li>
+                                <li data-value="vip" data-type="default"><span class="icon"></span><span
+                                        class="option-content">vip</span></li>
+                                <li data-value="new" data-type="default"><span class="icon"></span><span
+                                        class="option-content">new</span></li>
+                                <li data-value="holiday" data-type="default"><span class="icon"></span><span
+                                        class="option-content">holiday</span></li>
+                                <li data-value="bundle" data-type="default"><span class="icon"></span><span
+                                        class="option-content">bundle</span></li>
+                                <li data-value="{{ $(&#39;code2&#39;).item.body.event_type }}" data-type="default"><span
+                                        class="icon"></span><span class="option-content">{{
+                                        $('Code2').item.body.event_type }}</span></li>
+                                <li class="add-option" id="event_type_add_option_button">+ 옵션 추가</li>
+                            </ul>
+                            <div class="add-option-input hidden" id="event_type_add_input_container"><input type="text"
+                                    id="event_type_add_input" placeholder="입력 후 Enter"></div>
+                        </div><input type="hidden" id="event_type" name="event_type_hidden">
+                    </div><br><br>
+                    <label for="product_category">상품 카테고리 :</label>
+                    <div class="custom-dropdown-container">
+                        <div class="custom-dropdown" id="product_category_dropdown">
+                            <div class="dropdown-selected" id="product_category_selected_value" tabindex="0">-- 선택하세요 --
+                            </div>
+                            <ul class="dropdown-options hidden" id="product_category_options_list">
+                                <li data-value="fashion" data-type="default"><span class="icon"></span><span
+                                        class="option-content">fashion</span></li>
+                                <li data-value="electronic" data-type="default"><span class="icon"></span><span
+                                        class="option-content">electronic</span></li>
+                                <li data-value="beauty" data-type="default"><span class="icon"></span><span
+                                        class="option-content">beauty</span></li>
+                                <li data-value="car" data-type="default"><span class="icon"></span><span
+                                        class="option-content">car</span></li>
+                                <li data-value="home" data-type="default"><span class="icon"></span><span
+                                        class="option-content">home</span></li>
+                                <li data-value="sports" data-type="default"><span class="icon"></span><span
+                                        class="option-content">sports</span></li>
+                                <li data-value="food" data-type="default"><span class="icon"></span><span
+                                        class="option-content">food</span></li>
+                                <li data-value="books" data-type="default"><span class="icon"></span><span
+                                        class="option-content">books</span></li>
+                                <li data-value="game" data-type="default"><span class="icon"></span><span
+                                        class="option-content">game</span></li>
+                                <li data-value="office" data-type="default"><span class="icon"></span><span
+                                        class="option-content">office</span></li>
+                                <li data-value="{{ $(&#39;code2&#39;).item.body.product_category }}"
+                                    data-type="default"><span class="icon"></span><span class="option-content">{{
+                                        $('Code2').item.body.product_category }}</span></li>
+                                <li class="add-option" id="product_category_add_option_button">+ 옵션 추가</li>
+                            </ul>
+                            <div class="add-option-input hidden" id="product_category_add_input_container"><input
+                                    type="text" id="product_category_add_input" placeholder="입력 후 Enter"></div>
+                        </div><input type="hidden" id="product_category" name="product_category_hidden">
+                    </div><br><br>
+                    <label for="ad_target">광고 타겟 :</label>
+                    <div class="custom-dropdown-container">
+                        <div class="custom-dropdown" id="ad_target_dropdown">
+                            <div class="dropdown-selected" id="ad_target_selected_value" tabindex="0">-- 선택하세요 --</div>
+                            <ul class="dropdown-options hidden" id="ad_target_options_list">
+                                <li data-value="non" data-type="default"><span class="icon"></span><span
+                                        class="option-content">non</span></li>
+                                <li data-value="f" data-type="default"><span class="icon"></span><span
+                                        class="option-content">f</span></li>
+                                <li data-value="m" data-type="default"><span class="icon"></span><span
+                                        class="option-content">m</span></li>
+                                <li data-value="int" data-type="default"><span class="icon"></span><span
+                                        class="option-content">int</span></li>
+                                <li data-value="re" data-type="default"><span class="icon"></span><span
+                                        class="option-content">re</span></li>
+                                <li data-value="lal" data-type="default"><span class="icon"></span><span
+                                        class="option-content">lal</span></li>
+                                <li data-value="kw" data-type="default"><span class="icon"></span><span
+                                        class="option-content">kw</span></li>
+                                <li data-value="cus" data-type="default"><span class="icon"></span><span
+                                        class="option-content">cus</span></li>
+                                <li data-value="pay" data-type="default"><span class="icon"></span><span
+                                        class="option-content">pay</span></li>
+                                <li data-value="rival" data-type="default"><span class="icon"></span><span
+                                        class="option-content">rival</span></li>
+                                <li data-value="repres" data-type="default"><span class="icon"></span><span
+                                        class="option-content">repres</span></li>
+                                <li data-value="brand" data-type="default"><span class="icon"></span><span
+                                        class="option-content">brand</span></li>
+                                <li data-value="model" data-type="default"><span class="icon"></span><span
+                                        class="option-content">model</span></li>
+                                <li data-value="normal" data-type="default"><span class="icon"></span><span
+                                        class="option-content">normal</span></li>
+                                <li data-value="shopping" data-type="default"><span class="icon"></span><span
+                                        class="option-content">shopping</span></li>
+                                <li data-value="core" data-type="default"><span class="icon"></span><span
+                                        class="option-content">core</span></li>
+                                <li data-value="prod" data-type="default"><span class="icon"></span><span
+                                        class="option-content">prod</span></li>
+                                <li data-value="{{ $(&#39;code2&#39;).item.body.ad_target }}" data-type="default"><span
+                                        class="icon"></span><span class="option-content">{{
+                                        $('Code2').item.body.ad_target }}</span></li>
+                                <li class="add-option" id="ad_target_add_option_button">+ 옵션 추가</li>
+                            </ul>
+                            <div class="add-option-input hidden" id="ad_target_add_input_container"><input type="text"
+                                    id="ad_target_add_input" placeholder="입력 후 Enter"></div>
+                        </div><input type="hidden" id="ad_target" name="ad_target_hidden">
+                    </div><br><br>
+                    <label for="creative_type">소재 타입 :</label>
+                    <div class="custom-dropdown-container">
+                        <div class="custom-dropdown" id="creative_type_dropdown">
+                            <div class="dropdown-selected" id="creative_type_selected_value" tabindex="0">-- 선택하세요 --
+                            </div>
+                            <ul class="dropdown-options hidden" id="creative_type_options_list">
+                                <li data-value="img" data-type="default"><span class="icon"></span><span
+                                        class="option-content">img</span></li>
+                                <li data-value="video" data-type="default"><span class="icon"></span><span
+                                        class="option-content">video</span></li>
+                                <li data-value="banner" data-type="default"><span class="icon"></span><span
+                                        class="option-content">banner</span></li>
+                                <li data-value="infographic" data-type="default"><span class="icon"></span><span
+                                        class="option-content">infographic</span></li>
+                                <li data-value="slider" data-type="default"><span class="icon"></span><span
+                                        class="option-content">slider</span></li>
+                                <li data-value="interactive" data-type="default"><span class="icon"></span><span
+                                        class="option-content">interactive</span></li>
+                                <li data-value="audio" data-type="default"><span class="icon"></span><span
+                                        class="option-content">audio</span></li>
+                                <li data-value="ani" data-type="default"><span class="icon"></span><span
+                                        class="option-content">ani</span></li>
+                                <li data-value="{{ $(&#39;code2&#39;).item.body.creative_type }}" data-type="default">
+                                    <span class="icon"></span><span class="option-content">{{
+                                        $('Code2').item.body.creative_type }}</span></li>
+                                <li class="add-option" id="creative_type_add_option_button">+ 옵션 추가</li>
+                            </ul>
+                            <div class="add-option-input hidden" id="creative_type_add_input_container"><input
+                                    type="text" id="creative_type_add_input" placeholder="입력 후 Enter"></div>
+                        </div><input type="hidden" id="creative_type" name="creative_type_hidden">
+                    </div><br><br>
+                    <label for="device_type">기기 카테고리 <span class="required">(필수)</span> :</label>
+                    <div class="custom-dropdown-container">
+                        <div class="custom-dropdown" id="device_type_dropdown">
+                            <div class="dropdown-selected" id="device_type_selected_value" tabindex="0">mo</div>
+                            <ul class="dropdown-options hidden" id="device_type_options_list">
+                                <li data-value="mo" data-type="default"><span class="icon"></span><span
+                                        class="option-content">mo</span></li>
+                                <li data-value="pc" data-type="default"><span class="icon"></span><span
+                                        class="option-content">pc</span></li>
+                                <li data-value="app" data-type="default"><span class="icon"></span><span
+                                        class="option-content">app</span></li>
+                                <li data-value="{{ $(&#39;code2&#39;).item.body.device_type }}" data-type="default">
+                                    <span class="icon"></span><span class="option-content">{{
+                                        $('Code2').item.body.device_type }}</span></li>
+                                <li class="add-option" id="device_type_add_option_button">+ 옵션 추가</li>
+                            </ul>
+                            <div class="add-option-input hidden" id="device_type_add_input_container"><input type="text"
+                                    id="device_type_add_input" placeholder="입력 후 Enter"></div>
+                        </div><input type="hidden" id="device_type" name="device_type_hidden" required="" value="mo">
+                    </div><br><br>
+                </fieldset>
+
+                <fieldset style="border:1px solid #ccc; padding:10px;">
+                    <legend>UTM Content 구성</legend>
+                    <label for="content_action">목표 행동 :</label>
+                    <div class="custom-dropdown-container">
+                        <div class="custom-dropdown" id="content_action_dropdown">
+                            <div class="dropdown-selected" id="content_action_selected_value" tabindex="0">-- 선택하세요 --
+                            </div>
+                            <ul class="dropdown-options hidden" id="content_action_options_list">
+                                <li data-value="click" data-type="default"><span class="icon"></span><span
+                                        class="option-content">click</span></li>
+                                <li data-value="download" data-type="default"><span class="icon"></span><span
+                                        class="option-content">download</span></li>
+                                <li data-value="purchase" data-type="default"><span class="icon"></span><span
+                                        class="option-content">purchase</span></li>
+                                <li data-value="signup" data-type="default"><span class="icon"></span><span
+                                        class="option-content">signup</span></li>
+                                <li data-value="register" data-type="default"><span class="icon"></span><span
+                                        class="option-content">register</span></li>
+                                <li data-value="submit" data-type="default"><span class="icon"></span><span
+                                        class="option-content">submit</span></li>
+                                <li data-value="view" data-type="default"><span class="icon"></span><span
+                                        class="option-content">view</span></li>
+                                <li data-value="share" data-type="default"><span class="icon"></span><span
+                                        class="option-content">share</span></li>
+                                <li data-value="{{ $(&#39;code2&#39;).item.body.content_action }}" data-type="default">
+                                    <span class="icon"></span><span class="option-content">{{
+                                        $('Code2').item.body.content_action }}</span></li>
+                                <li class="add-option" id="content_action_add_option_button">+ 옵션 추가</li>
+                            </ul>
+                            <div class="add-option-input hidden" id="content_action_add_input_container"><input
+                                    type="text" id="content_action_add_input" placeholder="입력 후 Enter"></div>
+                        </div><input type="hidden" id="content_action" name="content_action_hidden">
+                    </div><br><br>
+                    <label for="content_detail">추가 기입 사항 :</label>
+                    <input type="text" id="content_detail" name="content_detail_form" placeholder="120X240-vertical"
+                        oninput="updateFinalURL()"><br><br>
+                    <label for="content_version">버전 :</label>
+                    <input type="text" id="content_version" name="content_version_form" placeholder="v1"
+                        oninput="updateFinalURL()"><br><br>
+                </fieldset>
+
+                <label for="utm_term">Term (선택) :</label>
+                <input type="text" id="utm_term" name="utm_term_form" placeholder="shoes"
+                    oninput="updateFinalURL()"><br><br>
+
+                <input type="hidden" id="utm_campaign" name="utm_campaign_combined" required=""
+                    value="20250515_da_N_N_N_N_N_mo">
+                <input type="hidden" id="utm_content" name="utm_content_combined" value="N">
+
+                <label for="final_url">최종 URL :</label>
+                <input type="text" id="final_url" name="final_url_display" readonly=""
+                    style="width: 80%;font-family:monospace;display: inline-block;">
+                <button type="submit">제출</button>
+                <div id="shortUrlContainer"></div>
+            </form>
+
+            <div id="responseContainer">
+                <label for="shortUrlInput">🔗 단축 URL:</label>
+                <input type="text" id="shortUrlInput" readonly="" style="font-family:monospace;">
+                <button type="button" onclick="copyLink()">📋 복사</button>
             </div>
-            <input type="hidden" id="medium" name="medium_hidden" required="" value="cpc">
+
+            <div id="historyTableContainer" style="margin-top: 30px;">
+                <h2>생성 이력</h2>
+                <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>생성 일시</th>
+                            <th>Source</th>
+                            <th>Medium</th>
+                            <th>Campaign</th>
+                            <th>Content</th>
+                            <th>Term</th>
+                            <th>페이지 URL</th>
+                            <th>최종 URL</th>
+                            <th>단축 URL</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-        <br><br>
-        
-        <fieldset style="border:1px solid #ccc; padding:10px;">
-            <legend>UTM Campaign 구성</legend>
-            <label for="campaign_date">날짜 <span class="required">(필수)</span> :</label>
-            <input type="text" id="campaign_date" name="campaign_date_form" placeholder="YYYYMMDD" oninput="updateFinalURL()" required=""><br><br> 
-            <label for="ad_type">광고 타입 <span class="required">(필수)</span> :</label>
-            <div class="custom-dropdown-container">
-                <div class="custom-dropdown" id="ad_type_dropdown">
-                    <div class="dropdown-selected" id="ad_type_selected_value" tabindex="0">da</div>
-                    <ul class="dropdown-options hidden" id="ad_type_options_list"><li data-value="da" data-type="default"><span class="icon"></span><span class="option-content">da</span></li><li data-value="sa" data-type="default"><span class="icon"></span><span class="option-content">sa</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.ad_type }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.ad_type }}</span></li><li class="add-option" id="ad_type_add_option_button">+ 옵션 추가</li></ul>
-                    <div class="add-option-input hidden" id="ad_type_add_input_container"><input type="text" id="ad_type_add_input" placeholder="입력 후 Enter"></div>
-                </div><input type="hidden" id="ad_type" name="ad_type_hidden" required="" value="da">
-            </div><br><br>
-            <label for="campaign_goal">캠페인 목표 :</label>
-            <div class="custom-dropdown-container">
-                <div class="custom-dropdown" id="campaign_goal_dropdown">
-                    <div class="dropdown-selected" id="campaign_goal_selected_value" tabindex="0">-- 선택하세요 --</div>
-                    <ul class="dropdown-options hidden" id="campaign_goal_options_list"><li data-value="traffic" data-type="default"><span class="icon"></span><span class="option-content">traffic</span></li><li data-value="conv" data-type="default"><span class="icon"></span><span class="option-content">conv</span></li><li data-value="reach" data-type="default"><span class="icon"></span><span class="option-content">reach</span></li><li data-value="view" data-type="default"><span class="icon"></span><span class="option-content">view</span></li><li data-value="tcpa" data-type="default"><span class="icon"></span><span class="option-content">tcpa</span></li><li data-value="click" data-type="default"><span class="icon"></span><span class="option-content">click</span></li><li data-value="cpm" data-type="default"><span class="icon"></span><span class="option-content">cpm</span></li><li data-value="branding" data-type="default"><span class="icon"></span><span class="option-content">branding</span></li><li data-value="purchase" data-type="default"><span class="icon"></span><span class="option-content">purchase</span></li><li data-value="appinstall" data-type="default"><span class="icon"></span><span class="option-content">appinstall</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.campaign_goal }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.campaign_goal }}</span></li><li class="add-option" id="campaign_goal_add_option_button">+ 옵션 추가</li></ul>
-                    <div class="add-option-input hidden" id="campaign_goal_add_input_container"><input type="text" id="campaign_goal_add_input" placeholder="입력 후 Enter"></div>
-                </div><input type="hidden" id="campaign_goal" name="campaign_goal_hidden">
-            </div><br><br>
-            <label for="event_type">기획전 종류 :</label>
-            <div class="custom-dropdown-container">
-                <div class="custom-dropdown" id="event_type_dropdown">
-                    <div class="dropdown-selected" id="event_type_selected_value" tabindex="0">-- 선택하세요 --</div>
-                    <ul class="dropdown-options hidden" id="event_type_options_list"><li data-value="promotion" data-type="default"><span class="icon"></span><span class="option-content">promotion</span></li><li data-value="pre" data-type="default"><span class="icon"></span><span class="option-content">pre</span></li><li data-value="season" data-type="default"><span class="icon"></span><span class="option-content">season</span></li><li data-value="flash" data-type="default"><span class="icon"></span><span class="option-content">flash</span></li><li data-value="inven" data-type="default"><span class="icon"></span><span class="option-content">inven</span></li><li data-value="anni" data-type="default"><span class="icon"></span><span class="option-content">anni</span></li><li data-value="vip" data-type="default"><span class="icon"></span><span class="option-content">vip</span></li><li data-value="new" data-type="default"><span class="icon"></span><span class="option-content">new</span></li><li data-value="holiday" data-type="default"><span class="icon"></span><span class="option-content">holiday</span></li><li data-value="bundle" data-type="default"><span class="icon"></span><span class="option-content">bundle</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.event_type }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.event_type }}</span></li><li class="add-option" id="event_type_add_option_button">+ 옵션 추가</li></ul>
-                    <div class="add-option-input hidden" id="event_type_add_input_container"><input type="text" id="event_type_add_input" placeholder="입력 후 Enter"></div>
-                </div><input type="hidden" id="event_type" name="event_type_hidden"> 
-            </div><br><br>
-            <label for="product_category">상품 카테고리 :</label>
-            <div class="custom-dropdown-container">
-                <div class="custom-dropdown" id="product_category_dropdown">
-                    <div class="dropdown-selected" id="product_category_selected_value" tabindex="0">-- 선택하세요 --</div>
-                    <ul class="dropdown-options hidden" id="product_category_options_list"><li data-value="fashion" data-type="default"><span class="icon"></span><span class="option-content">fashion</span></li><li data-value="electronic" data-type="default"><span class="icon"></span><span class="option-content">electronic</span></li><li data-value="beauty" data-type="default"><span class="icon"></span><span class="option-content">beauty</span></li><li data-value="car" data-type="default"><span class="icon"></span><span class="option-content">car</span></li><li data-value="home" data-type="default"><span class="icon"></span><span class="option-content">home</span></li><li data-value="sports" data-type="default"><span class="icon"></span><span class="option-content">sports</span></li><li data-value="food" data-type="default"><span class="icon"></span><span class="option-content">food</span></li><li data-value="books" data-type="default"><span class="icon"></span><span class="option-content">books</span></li><li data-value="game" data-type="default"><span class="icon"></span><span class="option-content">game</span></li><li data-value="office" data-type="default"><span class="icon"></span><span class="option-content">office</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.product_category }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.product_category }}</span></li><li class="add-option" id="product_category_add_option_button">+ 옵션 추가</li></ul>
-                    <div class="add-option-input hidden" id="product_category_add_input_container"><input type="text" id="product_category_add_input" placeholder="입력 후 Enter"></div>
-                </div><input type="hidden" id="product_category" name="product_category_hidden"> 
-            </div><br><br>
-            <label for="ad_target">광고 타겟 :</label>
-            <div class="custom-dropdown-container">
-                <div class="custom-dropdown" id="ad_target_dropdown">
-                    <div class="dropdown-selected" id="ad_target_selected_value" tabindex="0">-- 선택하세요 --</div>
-                    <ul class="dropdown-options hidden" id="ad_target_options_list"><li data-value="non" data-type="default"><span class="icon"></span><span class="option-content">non</span></li><li data-value="f" data-type="default"><span class="icon"></span><span class="option-content">f</span></li><li data-value="m" data-type="default"><span class="icon"></span><span class="option-content">m</span></li><li data-value="int" data-type="default"><span class="icon"></span><span class="option-content">int</span></li><li data-value="re" data-type="default"><span class="icon"></span><span class="option-content">re</span></li><li data-value="lal" data-type="default"><span class="icon"></span><span class="option-content">lal</span></li><li data-value="kw" data-type="default"><span class="icon"></span><span class="option-content">kw</span></li><li data-value="cus" data-type="default"><span class="icon"></span><span class="option-content">cus</span></li><li data-value="pay" data-type="default"><span class="icon"></span><span class="option-content">pay</span></li><li data-value="rival" data-type="default"><span class="icon"></span><span class="option-content">rival</span></li><li data-value="repres" data-type="default"><span class="icon"></span><span class="option-content">repres</span></li><li data-value="brand" data-type="default"><span class="icon"></span><span class="option-content">brand</span></li><li data-value="model" data-type="default"><span class="icon"></span><span class="option-content">model</span></li><li data-value="normal" data-type="default"><span class="icon"></span><span class="option-content">normal</span></li><li data-value="shopping" data-type="default"><span class="icon"></span><span class="option-content">shopping</span></li><li data-value="core" data-type="default"><span class="icon"></span><span class="option-content">core</span></li><li data-value="prod" data-type="default"><span class="icon"></span><span class="option-content">prod</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.ad_target }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.ad_target }}</span></li><li class="add-option" id="ad_target_add_option_button">+ 옵션 추가</li></ul>
-                    <div class="add-option-input hidden" id="ad_target_add_input_container"><input type="text" id="ad_target_add_input" placeholder="입력 후 Enter"></div>
-                </div><input type="hidden" id="ad_target" name="ad_target_hidden"> 
-            </div><br><br>
-            <label for="creative_type">소재 타입 :</label>
-            <div class="custom-dropdown-container">
-                <div class="custom-dropdown" id="creative_type_dropdown">
-                    <div class="dropdown-selected" id="creative_type_selected_value" tabindex="0">-- 선택하세요 --</div>
-                    <ul class="dropdown-options hidden" id="creative_type_options_list"><li data-value="img" data-type="default"><span class="icon"></span><span class="option-content">img</span></li><li data-value="video" data-type="default"><span class="icon"></span><span class="option-content">video</span></li><li data-value="banner" data-type="default"><span class="icon"></span><span class="option-content">banner</span></li><li data-value="infographic" data-type="default"><span class="icon"></span><span class="option-content">infographic</span></li><li data-value="slider" data-type="default"><span class="icon"></span><span class="option-content">slider</span></li><li data-value="interactive" data-type="default"><span class="icon"></span><span class="option-content">interactive</span></li><li data-value="audio" data-type="default"><span class="icon"></span><span class="option-content">audio</span></li><li data-value="ani" data-type="default"><span class="icon"></span><span class="option-content">ani</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.creative_type }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.creative_type }}</span></li><li class="add-option" id="creative_type_add_option_button">+ 옵션 추가</li></ul>
-                    <div class="add-option-input hidden" id="creative_type_add_input_container"><input type="text" id="creative_type_add_input" placeholder="입력 후 Enter"></div>
-                </div><input type="hidden" id="creative_type" name="creative_type_hidden"> 
-            </div><br><br>
-            <label for="device_type">기기 카테고리 <span class="required">(필수)</span> :</label>
-            <div class="custom-dropdown-container">
-                <div class="custom-dropdown" id="device_type_dropdown">
-                    <div class="dropdown-selected" id="device_type_selected_value" tabindex="0">mo</div>
-                    <ul class="dropdown-options hidden" id="device_type_options_list"><li data-value="mo" data-type="default"><span class="icon"></span><span class="option-content">mo</span></li><li data-value="pc" data-type="default"><span class="icon"></span><span class="option-content">pc</span></li><li data-value="app" data-type="default"><span class="icon"></span><span class="option-content">app</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.device_type }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.device_type }}</span></li><li class="add-option" id="device_type_add_option_button">+ 옵션 추가</li></ul>
-                    <div class="add-option-input hidden" id="device_type_add_input_container"><input type="text" id="device_type_add_input" placeholder="입력 후 Enter"></div>
-                </div><input type="hidden" id="device_type" name="device_type_hidden" required="" value="mo"> 
-            </div><br><br>
-        </fieldset>
-    
-        <fieldset style="border:1px solid #ccc; padding:10px;">
-            <legend>UTM Content 구성</legend>
-            <label for="content_action">목표 행동 :</label>
-            <div class="custom-dropdown-container">
-                <div class="custom-dropdown" id="content_action_dropdown">
-                    <div class="dropdown-selected" id="content_action_selected_value" tabindex="0">-- 선택하세요 --</div>
-                    <ul class="dropdown-options hidden" id="content_action_options_list"><li data-value="click" data-type="default"><span class="icon"></span><span class="option-content">click</span></li><li data-value="download" data-type="default"><span class="icon"></span><span class="option-content">download</span></li><li data-value="purchase" data-type="default"><span class="icon"></span><span class="option-content">purchase</span></li><li data-value="signup" data-type="default"><span class="icon"></span><span class="option-content">signup</span></li><li data-value="register" data-type="default"><span class="icon"></span><span class="option-content">register</span></li><li data-value="submit" data-type="default"><span class="icon"></span><span class="option-content">submit</span></li><li data-value="view" data-type="default"><span class="icon"></span><span class="option-content">view</span></li><li data-value="share" data-type="default"><span class="icon"></span><span class="option-content">share</span></li><li data-value="{{ $(&#39;code2&#39;).item.body.content_action }}" data-type="default"><span class="icon"></span><span class="option-content">{{ $('Code2').item.body.content_action }}</span></li><li class="add-option" id="content_action_add_option_button">+ 옵션 추가</li></ul>
-                    <div class="add-option-input hidden" id="content_action_add_input_container"><input type="text" id="content_action_add_input" placeholder="입력 후 Enter"></div>
-                </div><input type="hidden" id="content_action" name="content_action_hidden"> 
-            </div><br><br>
-            <label for="content_detail">추가 기입 사항 :</label>
-            <input type="text" id="content_detail" name="content_detail_form" placeholder="120X240-vertical" oninput="updateFinalURL()"><br><br> 
-            <label for="content_version">버전 :</label>
-            <input type="text" id="content_version" name="content_version_form" placeholder="v1" oninput="updateFinalURL()"><br><br> 
-        </fieldset>
-
-        <label for="utm_term">Term (선택) :</label>
-        <input type="text" id="utm_term" name="utm_term_form" placeholder="shoes" oninput="updateFinalURL()"><br><br> 
-
-        <input type="hidden" id="utm_campaign" name="utm_campaign_combined" required="" value="20250515_da_N_N_N_N_N_mo">
-        <input type="hidden" id="utm_content" name="utm_content_combined" value="N">
-
-        <label for="final_url">최종 URL :</label>
-        <input type="text" id="final_url" name="final_url_display" readonly="" style="width: 80%;font-family:monospace;display: inline-block;"> 
-        <button type="submit">제출</button>
-<div id="shortUrlContainer"></div>
-    </form>
-
-    <div id="responseContainer">
-        <label for="shortUrlInput">🔗 단축 URL:</label>
-        <input type="text" id="shortUrlInput" readonly="" style="font-family:monospace;">
-        <button type="button" onclick="copyLink()">📋 복사</button>
     </div>
 
-    <div id="historyTableContainer" style="margin-top: 30px;">
-        <h2>생성 이력</h2>
-        <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;" id="historyTable">
-            <thead><tr><th>생성 일시</th><th>Source</th><th>Medium</th><th>Campaign</th><th>Content</th><th>Term</th><th>페이지 URL</th><th>최종 URL</th><th>단축 URL</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</div>
-</div>
+    <script>
+        // --- 설정값 ---
+        // const LS_KEY_PREFIX = 'utmGenerator_standalone_'; // 더 이상 사용하지 않음
+        // const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=1861589139&single=true&output=csv';
+        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=663849837&single=true&output=csv';
+        // const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/19P0nk0XDI5HwwkCvZnwGa7C22A-RL6MSzcVx7mjYYRs/edit?gid=663849837&output=csv';
+        const N8N_WEBHOOK_URL = 'https://entrench-consulting.app.n8n.cloud/webhook/utm-form'; // <-- 사용자 실제 n8n URL로 변경 필수!
+        // const HISTORY_JSON_URL = 'https://raw.githubusercontent.com/choi-yoonhyuk/source_medium_drop/main/n8n-builder.json'; 
+        const GOOGLE_SHEET_HISTORY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=1831366188&single=true&output=csv'; // History 시트의 CSV 게시 URL로 변경
+        // 참고: 위 URL은 예시이며, 실제 History 시트를 "웹에 게시"하여 "CSV" 형식으로 생성된 URL을 사용해야 합니다.
+        // gid=1831366188는 맞지만, 그 앞의 /e/2PACX... 부분은 실제 게시된 URL로 대체해야 합니다.
 
-<script>
-// --- 설정값 ---
-// const LS_KEY_PREFIX = 'utmGenerator_standalone_'; // 더 이상 사용하지 않음
-// const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=1861589139&single=true&output=csv';
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=663849837&single=true&output=csv';
-// const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/19P0nk0XDI5HwwkCvZnwGa7C22A-RL6MSzcVx7mjYYRs/edit?gid=663849837&output=csv';
-const N8N_WEBHOOK_URL = 'https://entrench-consulting.app.n8n.cloud/webhook/utm-form'; // <-- 사용자 실제 n8n URL로 변경 필수!
-// const HISTORY_JSON_URL = 'https://raw.githubusercontent.com/choi-yoonhyuk/source_medium_drop/main/n8n-builder.json'; 
-const GOOGLE_SHEET_HISTORY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShcppno7HuVQbjoQzbaBMEvoBGt6atss9FI_-F3qSh_pzgtxw7A4NPo6Y2EYoll2y5_8wMt08X_oV0/pub?gid=1831366188&single=true&output=csv'; // History 시트의 CSV 게시 URL로 변경
-// 참고: 위 URL은 예시이며, 실제 History 시트를 "웹에 게시"하여 "CSV" 형식으로 생성된 URL을 사용해야 합니다.
-// gid=1831366188는 맞지만, 그 앞의 /e/2PACX... 부분은 실제 게시된 URL로 대체해야 합니다.
+        const dropdownBaseIds = [
+            'source', 'medium', 'ad_type', 'campaign_goal', 'event_type',
+            'product_category', 'ad_target', 'creative_type', 'device_type', 'content_action'
+        ];
 
-const dropdownBaseIds = [
-    'source', 'medium', 'ad_type', 'campaign_goal', 'event_type', 
-    'product_category', 'ad_target', 'creative_type', 'device_type', 'content_action'
-];
+        const columnHeaderMap = {
+            'source': 'source', 'medium': 'medium', 'ad_type': 'utm_campaign_ad_type',
+            'campaign_goal': 'utm_campaign_goal', 'event_type': 'utm_campaign_event_type',
+            'product_category': 'utm_campaign_product_category', 'ad_target': 'utm_campaign_ad_target',
+            'creative_type': 'utm_campaign_creative_type', 'device_type': 'utm_campaign_device_type',
+            'content_action': 'utm_content_content_action'
+        };
 
-const columnHeaderMap = { 
-    'source': 'source', 'medium': 'medium', 'ad_type': 'utm_campaign_ad_type',
-    'campaign_goal': 'utm_campaign_goal', 'event_type': 'utm_campaign_event_type',
-    'product_category': 'utm_campaign_product_category', 'ad_target': 'utm_campaign_ad_target',
-    'creative_type': 'utm_campaign_creative_type', 'device_type': 'utm_campaign_device_type',
-    'content_action': 'utm_content_content_action'
-};
+        let masterOptionLists = {};
 
-let masterOptionLists = {}; 
-
-document.addEventListener('DOMContentLoaded', async () => {
-    showLoading("옵션 및 이력 로딩 중...");
-    let csvDataText = null;
-    try {
-        const response = await fetch(GOOGLE_SHEET_CSV_URL);
-        if (!response.ok) throw new Error(`드롭다운 옵션 CSV 로드 실패 (${response.status})`);
-        csvDataText = await response.text();
-        console.log("드롭다운 옵션 CSV 데이터 로드 완료");
-
-        parseAndStoreMasterOptions(csvDataText);
-
-        for (const baseId of dropdownBaseIds) {
+        document.addEventListener('DOMContentLoaded', async () => {
+            showLoading("옵션 및 이력 로딩 중...");
+            let csvDataText = null;
             try {
-                renderDropdownWithOptions(baseId);
-                setupDropdownInteractions(baseId);
-            } catch (error) {
-                console.error(`Error initializing dropdown for ${baseId}:`, error);
-            }
-        }
-        updateFinalURL(); 
-        await renderHistoryTable(); 
-    } catch (error) {
-        console.error("초기 데이터 로딩 오류:", error);
-        alert(`초기 데이터(드롭다운 옵션 또는 이력)를 불러오는 데 실패했습니다: ${error.message}`);
-    } finally {
-        hideLoading();
-    }
-});
+                const response = await fetch(GOOGLE_SHEET_CSV_URL);
+                if (!response.ok) throw new Error(`드롭다운 옵션 CSV 로드 실패 (${response.status})`);
+                csvDataText = await response.text();
+                console.log("드롭다운 옵션 CSV 데이터 로드 완료");
 
-function showLoading(message = "처리 중...") {
-    const indicator = document.getElementById('loadingIndicator');
-    if (indicator) { indicator.textContent = message; indicator.style.display = 'flex'; }
-}
-function hideLoading() {
-    const indicator = document.getElementById('loadingIndicator');
-    if (indicator) { indicator.style.display = 'none'; }
-}
+                parseAndStoreMasterOptions(csvDataText);
 
-function createOptionLi(value, displayText, type) {
-    const li = document.createElement('li');
-    const valueForDataset = String(value).trim().toLowerCase(); 
-    li.dataset.value = valueForDataset; 
-    li.dataset.type = type;
-
-    const iconSpan = document.createElement('span'); iconSpan.className = 'icon'; li.appendChild(iconSpan);
-    const textSpan = document.createElement('span'); textSpan.className = 'option-content'; 
-    textSpan.textContent = String(displayText).trim() || String(value).trim();
-    li.appendChild(textSpan);
-
-    if (type === 'custom') {
-        const deleteBtn = document.createElement('button'); deleteBtn.type = 'button'; deleteBtn.className = 'delete-btn'; deleteBtn.innerHTML = '&times;'; li.appendChild(deleteBtn);
-    }
-    return li;
-}
-
-function parseAndStoreMasterOptions(csvDataText) {
-    if (!csvDataText) {
-        console.warn("CSV 데이터가 비어있어 마스터 옵션을 파싱할 수 없습니다.");
-        dropdownBaseIds.forEach(baseId => { masterOptionLists[baseId] = new Set(); });
-        return;
-    }
-    try {
-        const lines = csvDataText.split(/\r?\n/);
-        if (lines.length < 3) { 
-            console.warn("CSV 데이터가 충분하지 않습니다 (옵션 데이터는 3번째 줄부터 시작).");
-            dropdownBaseIds.forEach(baseId => { masterOptionLists[baseId] = new Set(); });
-            return;
-        }
-        const headers = lines[0].split(',').map(h => String(h).trim().replace(/^"|"$/g, ''));
-        
-        for (const baseId of dropdownBaseIds) {
-            const targetCsvHeader = columnHeaderMap[baseId];
-            if (!targetCsvHeader) {
-                console.warn(`No CSV header mapping for dropdown baseId '${baseId}'.`);
-                masterOptionLists[baseId] = new Set();
-                continue;
-            }
-
-            const columnIndex = headers.findIndex(header => header === targetCsvHeader);
-            if (columnIndex === -1) {
-                console.warn(`CSV에서 '${targetCsvHeader}' 컬럼을 찾을 수 없습니다 (for baseId '${baseId}').`);
-                masterOptionLists[baseId] = new Set();
-                continue;
-            }
-
-            const optionsForThisCategory = new Set();
-            for (let i = 2; i < lines.length; i++) { 
-                const columns = lines[i].split(',').map(s => s.trim().replace(/^"|"$/g, ''));
-                if (columns.length > columnIndex) {
-                    const value = String(columns[columnIndex]).trim();
-                    if (value && value.toLowerCase() !== 'undefined') { // "undefined" 문자열은 마스터 옵션으로 추가 안 함
-                        optionsForThisCategory.add(value); 
+                for (const baseId of dropdownBaseIds) {
+                    try {
+                        renderDropdownWithOptions(baseId);
+                        setupDropdownInteractions(baseId);
+                    } catch (error) {
+                        console.error(`Error initializing dropdown for ${baseId}:`, error);
                     }
                 }
+                updateFinalURL();
+                await renderHistoryTable();
+            } catch (error) {
+                console.error("초기 데이터 로딩 오류:", error);
+                alert(`초기 데이터(드롭다운 옵션 또는 이력)를 불러오는 데 실패했습니다: ${error.message}`);
+            } finally {
+                hideLoading();
             }
-            masterOptionLists[baseId] = optionsForThisCategory;
-            console.log(`DEBUG: Master options loaded for [${baseId}]:`, Array.from(optionsForThisCategory)); 
-        }
-    } catch (error) {
-        console.error("Error parsing master options CSV:", error);
-        dropdownBaseIds.forEach(baseId => {
-            if (!masterOptionLists[baseId]) masterOptionLists[baseId] = new Set();
         });
-    }
-}
 
-function renderDropdownWithOptions(baseId) {
-    const optionsList = document.getElementById(`${baseId}_options_list`);
-    const addOptionButton = document.getElementById(`${baseId}_add_option_button`);
-    if (!optionsList || !addOptionButton) {
-        console.error(`Dropdown elements not found for ${baseId}`);
-        return;
-    }
-
-    optionsList.innerHTML = ''; 
-    optionsList.appendChild(addOptionButton); 
-
-    const defaultOptionsFromMaster = masterOptionLists[baseId] || new Set();
-    const allRenderedValuesLowerCase = new Set();
-
-    defaultOptionsFromMaster.forEach(originalValue => {
-        const valueTrimmed = String(originalValue).trim();
-        const lowerCaseValue = valueTrimmed.toLowerCase();
-        if (valueTrimmed && !allRenderedValuesLowerCase.has(lowerCaseValue)) {
-            const li = createOptionLi(valueTrimmed, valueTrimmed, 'default');
-            optionsList.insertBefore(li, addOptionButton);
-            allRenderedValuesLowerCase.add(lowerCaseValue);
+        function showLoading(message = "처리 중...") {
+            const indicator = document.getElementById('loadingIndicator');
+            if (indicator) { indicator.textContent = message; indicator.style.display = 'flex'; }
         }
-    });
+        function hideLoading() {
+            const indicator = document.getElementById('loadingIndicator');
+            if (indicator) { indicator.style.display = 'none'; }
+        }
 
-    const storageKey = baseId; // LS_KEY_PREFIX 제거, baseId를 직접 키로 사용
-    const customValuesFromStorage = JSON.parse(localStorage.getItem(storageKey) || '[]');
-    
-    customValuesFromStorage.forEach(originalValueFromStorage => {
-        const valueTrimmed = String(originalValueFromStorage).trim();
-        const lowerCaseValue = valueTrimmed.toLowerCase();
+        function createOptionLi(value, displayText, type) {
+            const li = document.createElement('li');
+            const valueForDataset = String(value).trim().toLowerCase();
+            li.dataset.value = valueForDataset;
+            li.dataset.type = type;
 
-        if (valueTrimmed && !allRenderedValuesLowerCase.has(lowerCaseValue)) {
-            let isInMasterListAlready = false;
-            defaultOptionsFromMaster.forEach(masterOpt => {
-                if (String(masterOpt).trim().toLowerCase() === lowerCaseValue) {
-                    isInMasterListAlready = true;
+            const iconSpan = document.createElement('span'); iconSpan.className = 'icon'; li.appendChild(iconSpan);
+            const textSpan = document.createElement('span'); textSpan.className = 'option-content';
+            textSpan.textContent = String(displayText).trim() || String(value).trim();
+            li.appendChild(textSpan);
+
+            if (type === 'custom') {
+                const deleteBtn = document.createElement('button'); deleteBtn.type = 'button'; deleteBtn.className = 'delete-btn'; deleteBtn.innerHTML = '&times;'; li.appendChild(deleteBtn);
+            }
+            return li;
+        }
+
+        function parseAndStoreMasterOptions(csvDataText) {
+            if (!csvDataText) {
+                console.warn("CSV 데이터가 비어있어 마스터 옵션을 파싱할 수 없습니다.");
+                dropdownBaseIds.forEach(baseId => { masterOptionLists[baseId] = new Set(); });
+                return;
+            }
+            try {
+                const lines = csvDataText.split(/\r?\n/);
+                if (lines.length < 3) {
+                    console.warn("CSV 데이터가 충분하지 않습니다 (옵션 데이터는 3번째 줄부터 시작).");
+                    dropdownBaseIds.forEach(baseId => { masterOptionLists[baseId] = new Set(); });
+                    return;
+                }
+                const headers = lines[0].split(',').map(h => String(h).trim().replace(/^"|"$/g, ''));
+
+                for (const baseId of dropdownBaseIds) {
+                    const targetCsvHeader = columnHeaderMap[baseId];
+                    if (!targetCsvHeader) {
+                        console.warn(`No CSV header mapping for dropdown baseId '${baseId}'.`);
+                        masterOptionLists[baseId] = new Set();
+                        continue;
+                    }
+
+                    const columnIndex = headers.findIndex(header => header === targetCsvHeader);
+                    if (columnIndex === -1) {
+                        console.warn(`CSV에서 '${targetCsvHeader}' 컬럼을 찾을 수 없습니다 (for baseId '${baseId}').`);
+                        masterOptionLists[baseId] = new Set();
+                        continue;
+                    }
+
+                    const optionsForThisCategory = new Set();
+                    for (let i = 2; i < lines.length; i++) {
+                        const columns = lines[i].split(',').map(s => s.trim().replace(/^"|"$/g, ''));
+                        if (columns.length > columnIndex) {
+                            const value = String(columns[columnIndex]).trim();
+                            if (value && value.toLowerCase() !== 'undefined') { // "undefined" 문자열은 마스터 옵션으로 추가 안 함
+                                optionsForThisCategory.add(value);
+                            }
+                        }
+                    }
+                    masterOptionLists[baseId] = optionsForThisCategory;
+                    console.log(`DEBUG: Master options loaded for [${baseId}]:`, Array.from(optionsForThisCategory));
+                }
+            } catch (error) {
+                console.error("Error parsing master options CSV:", error);
+                dropdownBaseIds.forEach(baseId => {
+                    if (!masterOptionLists[baseId]) masterOptionLists[baseId] = new Set();
+                });
+            }
+        }
+
+        function renderDropdownWithOptions(baseId) {
+            const optionsList = document.getElementById(`${baseId}_options_list`);
+            const addOptionButton = document.getElementById(`${baseId}_add_option_button`);
+            if (!optionsList || !addOptionButton) {
+                console.error(`Dropdown elements not found for ${baseId}`);
+                return;
+            }
+
+            optionsList.innerHTML = '';
+            optionsList.appendChild(addOptionButton);
+
+            const defaultOptionsFromMaster = masterOptionLists[baseId] || new Set();
+            const allRenderedValuesLowerCase = new Set();
+
+            defaultOptionsFromMaster.forEach(originalValue => {
+                const valueTrimmed = String(originalValue).trim();
+                const lowerCaseValue = valueTrimmed.toLowerCase();
+                if (valueTrimmed && !allRenderedValuesLowerCase.has(lowerCaseValue)) {
+                    const li = createOptionLi(valueTrimmed, valueTrimmed, 'default');
+                    optionsList.insertBefore(li, addOptionButton);
+                    allRenderedValuesLowerCase.add(lowerCaseValue);
                 }
             });
 
-            if (!isInMasterListAlready) {
-                const li = createOptionLi(valueTrimmed, valueTrimmed, 'custom');
-                optionsList.insertBefore(li, addOptionButton);
-                allRenderedValuesLowerCase.add(lowerCaseValue);
-            }
-        }
-    });
-}
+            const storageKey = baseId; // LS_KEY_PREFIX 제거, baseId를 직접 키로 사용
+            const customValuesFromStorage = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
-function saveCustomOptionsToStorage(baseId) {
-    const optionsList = document.getElementById(`${baseId}_options_list`);
-    if (!optionsList) {
-        console.error(`[saveCustomOptionsToStorage] Options list for ${baseId} not found.`);
-        return;
-    }
-    const storageKey = baseId; // LS_KEY_PREFIX 제거, baseId를 직접 키로 사용
-    
-    const customValues = [];
-    optionsList.querySelectorAll('li[data-type="custom"]').forEach(li => {
-        const contentElement = li.querySelector('.option-content');
-        if (contentElement && contentElement.textContent) {
-            customValues.push(contentElement.textContent.trim()); 
-        }
-    });
-    try {
-       localStorage.setItem(storageKey, JSON.stringify(customValues));
-        console.log(`[saveCustomOptionsToStorage] Saved custom options for [${baseId}] to localStorage with key [${storageKey}]:`, customValues);
-    } catch (e) {
-        console.error(`[saveCustomOptionsToStorage] Error saving to localStorage for ${baseId} with key [${storageKey}]:`, e);
-        // alert("로컬 스토리지에 옵션을 저장하는 중 오류가 발생했습니다. 브라우저 설정에서 로컬 스토리지가 허용되어 있는지 확인해주세요.");
-    }
-}
+            customValuesFromStorage.forEach(originalValueFromStorage => {
+                const valueTrimmed = String(originalValueFromStorage).trim();
+                const lowerCaseValue = valueTrimmed.toLowerCase();
 
-function setupDropdownInteractions(baseId) {
-    const dropdown = document.getElementById(`${baseId}_dropdown`);
-    const selectedValueDiv = document.getElementById(`${baseId}_selected_value`);
-    const optionsList = document.getElementById(`${baseId}_options_list`);
-    const hiddenInput = document.getElementById(baseId); 
-    const addOptionButton = document.getElementById(`${baseId}_add_option_button`);
-    const addInputContainer = document.getElementById(`${baseId}_add_input_container`);
-    const addInput = document.getElementById(`${baseId}_add_input`);
+                if (valueTrimmed && !allRenderedValuesLowerCase.has(lowerCaseValue)) {
+                    let isInMasterListAlready = false;
+                    defaultOptionsFromMaster.forEach(masterOpt => {
+                        if (String(masterOpt).trim().toLowerCase() === lowerCaseValue) {
+                            isInMasterListAlready = true;
+                        }
+                    });
 
-    if (!dropdown || !selectedValueDiv || !optionsList || !hiddenInput || !addOptionButton || !addInputContainer || !addInput) return;
-
-    selectedValueDiv.addEventListener('click', (event) => {
-        event.stopPropagation(); closeOtherDropdowns(baseId); optionsList.classList.toggle('hidden'); addInputContainer.classList.add('hidden');
-    });
-
-    optionsList.addEventListener('click', (event) => {
-        event.stopPropagation(); 
-        const targetLi = event.target.closest('li');
-        if (event.target.classList.contains('delete-btn') && targetLi && targetLi.dataset.type === 'custom') {
-            const textContent = targetLi.querySelector('.option-content')?.textContent || targetLi.dataset.value;
-            if (confirm(`'${textContent}' 항목을 삭제하시겠습니까? (브라우저 저장소에서만 삭제됩니다)`)) {
-                if (hiddenInput.value === targetLi.dataset.value) { 
-                    selectedValueDiv.textContent = '-- 선택하세요 --'; 
-                    hiddenInput.value = ''; 
+                    if (!isInMasterListAlready) {
+                        const li = createOptionLi(valueTrimmed, valueTrimmed, 'custom');
+                        optionsList.insertBefore(li, addOptionButton);
+                        allRenderedValuesLowerCase.add(lowerCaseValue);
+                    }
                 }
-                targetLi.remove(); 
-               // saveCustomOptionsToStorage(baseId); 
-                updateFinalURL();
-            }
-        } else if (targetLi && targetLi.classList.contains('add-option')) {
-            addInputContainer.classList.remove('hidden'); addInput.value = ''; addInput.focus();
-        } else if (targetLi && typeof targetLi.dataset.value !== 'undefined') {
-            const value = targetLi.dataset.value; 
-            const text = targetLi.querySelector('.option-content')?.textContent || value; 
-            selectedValueDiv.textContent = text; 
-            hiddenInput.value = value; 
-            optionsList.classList.add('hidden'); 
-            addInputContainer.classList.add('hidden'); 
-            updateFinalURL();
+            });
         }
-    });
 
-    addInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            const originalNewValue = addInput.value.trim(); 
-            const lowerCaseNewValue = originalNewValue.toLowerCase(); 
-
-            if (!originalNewValue) { alert('추가할 값을 입력해주세요.'); return; }
-            if (originalNewValue.toLowerCase() === 'undefined') { // "undefined" 문자열 입력 방지
-                alert("'undefined'라는 값은 옵션으로 추가할 수 없습니다.");
-                addInput.value = '';
+        function saveCustomOptionsToStorage(baseId) {
+            const optionsList = document.getElementById(`${baseId}_options_list`);
+            if (!optionsList) {
+                console.error(`[saveCustomOptionsToStorage] Options list for ${baseId} not found.`);
                 return;
             }
-            if (/\s|&|\?|#|\.|\/|\\/.test(originalNewValue)) { alert("띄어쓰기 및 특수문자(&, ?, #, ., /, \\)는 사용할 수 없습니다."); return; }
-            if (/[^a-z0-9_\-]/.test(lowerCaseNewValue)) { alert("Key 값(소문자로 변환된 값)은 영문 소문자, 숫자, 언더스코어(_), 하이픈(-)만 사용할 수 있습니다."); return; }
-            
-            let existsInCurrentDropdown = false; 
-            optionsList.querySelectorAll('li[data-value]').forEach(li => { if(li.dataset.value === lowerCaseNewValue) existsInCurrentDropdown = true; });
-            if (existsInCurrentDropdown) { alert("이미 현재 드롭다운 목록에 존재하는 값입니다 (소문자 기준)."); return; }
+            const storageKey = baseId; // LS_KEY_PREFIX 제거, baseId를 직접 키로 사용
 
-            const newLi = createOptionLi(originalNewValue, originalNewValue, 'custom'); 
-            optionsList.insertBefore(newLi, addOptionButton);
-            // saveCustomOptionsToStorage(baseId); 
-
-            console.log(`새 옵션 '${originalNewValue}'은(는) 로컬 스토리지에만 저장되었습니다.`);
-            
-            selectedValueDiv.textContent = originalNewValue;
-            hiddenInput.value = lowerCaseNewValue; 
-            addInputContainer.classList.add('hidden');
-            optionsList.classList.add('hidden');
-            updateFinalURL();
-        }
-    });
-    addInput.addEventListener('blur', () => {
-        setTimeout(() => { if (!addInputContainer.contains(document.activeElement)) { addInputContainer.classList.add('hidden'); } }, 150);
-    });
-}
-
-function closeOtherDropdowns(currentBaseId) { 
-    dropdownBaseIds.forEach(baseId => { 
-        if (baseId !== currentBaseId) { 
-            document.getElementById(`${baseId}_options_list`)?.classList.add('hidden'); 
-            document.getElementById(`${baseId}_add_input_container`)?.classList.add('hidden'); 
-        } 
-    });
-}
-document.addEventListener('click', (event) => {
-    dropdownBaseIds.forEach(baseId => { 
-        const dropdownElement = document.getElementById(`${baseId}_dropdown`); 
-        if (dropdownElement && !dropdownElement.contains(event.target)) { 
-            document.getElementById(`${baseId}_options_list`)?.classList.add('hidden'); 
-            document.getElementById(`${baseId}_add_input_container`)?.classList.add('hidden'); 
-        } 
-    });
-});
-
-function getValueOrN(elementId) {
-    const element = document.getElementById(elementId);
-    let value = "";
-    if (element) { // text input 또는 hidden input
-        value = element.value.trim(); 
-    }
-    
-    const selectedDisplayElement = document.getElementById(`${elementId}_selected_value`); // 드롭다운의 경우에만 존재
-    if (selectedDisplayElement && selectedDisplayElement.textContent.trim() === "-- 선택하세요 --") {
-        return "n"; 
-    }
-    if (value === "" || value.toLowerCase() === "n") { // 직접 입력 필드가 비었거나, hidden input이 "n"이거나 비었으면
-        return "n";
-    }
-    return value.toLowerCase(); // 최종적으로 소문자화된 값 (또는 사용자가 직접 입력한 값의 소문자)
-}
-
-function updateFinalURL() {
-    const pageUrl = document.getElementById("page_url").value.trim();
-    const utmSource = getValueOrN("source"); 
-    const utmMedium = getValueOrN("medium");
-    const campaignDate = getValueOrN("campaign_date"); 
-    const adType = getValueOrN("ad_type");
-    const campaignGoal = getValueOrN("campaign_goal");
-    const eventType = getValueOrN("event_type");
-    const productCategory = getValueOrN("product_category");
-    const adTarget = getValueOrN("ad_target");
-    const creativeType = getValueOrN("creative_type");
-    const deviceType = getValueOrN("device_type");
-
-    const utmCampaignParts = [
-        campaignDate, adType, campaignGoal, eventType, 
-        productCategory, adTarget, creativeType, deviceType
-    ];
-    const utmCampaign = utmCampaignParts.map(part => part === "n" ? "N" : part).join("_");
-    document.getElementById("utm_campaign").value = utmCampaign;
-
-    const contentAction = getValueOrN("content_action");
-    const contentDetail = getValueOrN("content_detail"); 
-    const contentVersion = getValueOrN("content_version"); 
-    
-    const utmContentParts = [contentAction, contentDetail, contentVersion].map(part => part === "n" ? "N" : part);
-    const utmContent = utmContentParts.every(part => part === "N") ? "N" : utmContentParts.join("_");
-    document.getElementById("utm_content").value = utmContent;
-    
-    const utmTerm = getValueOrN("utm_term"); 
-
-    let finalURLGenerated = pageUrl;
-    if (!pageUrl) { 
-        document.getElementById("final_url").value = "";
-        return;
-    }
-    const params = [];
-    if (utmSource && utmSource !== "n") params.push(`utm_source=${encodeURIComponent(utmSource)}`);
-    if (utmMedium && utmMedium !== "n") params.push(`utm_medium=${encodeURIComponent(utmMedium)}`);
-    
-    const defaultCampaign = Array(utmCampaignParts.length).fill("N").join("_"); 
-    if (utmCampaign && utmCampaign !== defaultCampaign) {
-        params.push(`utm_campaign=${encodeURIComponent(utmCampaign)}`);
-    }
-    
-    const defaultContent = "N_N_N"; 
-    if (utmContent && utmContent !== "N" && utmContent !== defaultContent) { 
-         params.push(`utm_content=${encodeURIComponent(utmContent)}`);
-    }
-    if (utmTerm && utmTerm !== "n") params.push(`utm_term=${encodeURIComponent(utmTerm)}`);
-
-    if (params.length > 0) {
-        finalURLGenerated += (pageUrl.includes('?') ? '&' : '?') + params.join('&');
-    }
-    document.getElementById("final_url").value = finalURLGenerated;
-}
-
-async function fetchHistoryData() {
-    showLoading("이력 로딩 중 (Google Sheet)...");
-    try {
-        const response = await fetch(GOOGLE_SHEET_HISTORY_URL); // 새로운 URL 사용
-        if (!response.ok) {
-            console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 없음 또는 불러오기 실패:`, response.status, response.statusText);
-            hideLoading();
-            return [];
-        }
-        const csvText = await response.text();
-        if (!csvText) {
-            console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 내용이 비어있습니다.`);
-            hideLoading();
-            return [];
+            const customValues = [];
+            optionsList.querySelectorAll('li[data-type="custom"]').forEach(li => {
+                const contentElement = li.querySelector('.option-content');
+                if (contentElement && contentElement.textContent) {
+                    customValues.push(contentElement.textContent.trim());
+                }
+            });
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(customValues));
+                console.log(`[saveCustomOptionsToStorage] Saved custom options for [${baseId}] to localStorage with key [${storageKey}]:`, customValues);
+            } catch (e) {
+                console.error(`[saveCustomOptionsToStorage] Error saving to localStorage for ${baseId} with key [${storageKey}]:`, e);
+                // alert("로컬 스토리지에 옵션을 저장하는 중 오류가 발생했습니다. 브라우저 설정에서 로컬 스토리지가 허용되어 있는지 확인해주세요.");
+            }
         }
 
-        // CSV 파싱 (기존 n8n JSON의 history 시트 컬럼명에 맞춰야 함)
-        const lines = csvText.split(/\r?\n/);
-        if (lines.length < 2) { // 헤더 + 데이터 최소 1줄
-            console.warn("Google Sheet 히스토리 데이터가 충분하지 않습니다.");
-            hideLoading();
-            return [];
+        function setupDropdownInteractions(baseId) {
+            const dropdown = document.getElementById(`${baseId}_dropdown`);
+            const selectedValueDiv = document.getElementById(`${baseId}_selected_value`);
+            const optionsList = document.getElementById(`${baseId}_options_list`);
+            const hiddenInput = document.getElementById(baseId);
+            const addOptionButton = document.getElementById(`${baseId}_add_option_button`);
+            const addInputContainer = document.getElementById(`${baseId}_add_input_container`);
+            const addInput = document.getElementById(`${baseId}_add_input`);
+
+            if (!dropdown || !selectedValueDiv || !optionsList || !hiddenInput || !addOptionButton || !addInputContainer || !addInput) return;
+
+            selectedValueDiv.addEventListener('click', (event) => {
+                event.stopPropagation(); closeOtherDropdowns(baseId); optionsList.classList.toggle('hidden'); addInputContainer.classList.add('hidden');
+            });
+
+            optionsList.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const targetLi = event.target.closest('li');
+                if (event.target.classList.contains('delete-btn') && targetLi && targetLi.dataset.type === 'custom') {
+                    const textContent = targetLi.querySelector('.option-content')?.textContent || targetLi.dataset.value;
+                    if (confirm(`'${textContent}' 항목을 삭제하시겠습니까? (브라우저 저장소에서만 삭제됩니다)`)) {
+                        if (hiddenInput.value === targetLi.dataset.value) {
+                            selectedValueDiv.textContent = '-- 선택하세요 --';
+                            hiddenInput.value = '';
+                        }
+                        targetLi.remove();
+                        // saveCustomOptionsToStorage(baseId); 
+                        updateFinalURL();
+                    }
+                } else if (targetLi && targetLi.classList.contains('add-option')) {
+                    addInputContainer.classList.remove('hidden'); addInput.value = ''; addInput.focus();
+                } else if (targetLi && typeof targetLi.dataset.value !== 'undefined') {
+                    const value = targetLi.dataset.value;
+                    const text = targetLi.querySelector('.option-content')?.textContent || value;
+                    selectedValueDiv.textContent = text;
+                    hiddenInput.value = value;
+                    optionsList.classList.add('hidden');
+                    addInputContainer.classList.add('hidden');
+                    updateFinalURL();
+                }
+            });
+
+            addInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const originalNewValue = addInput.value.trim();
+                    const lowerCaseNewValue = originalNewValue.toLowerCase();
+
+                    if (!originalNewValue) { alert('추가할 값을 입력해주세요.'); return; }
+                    if (originalNewValue.toLowerCase() === 'undefined') { // "undefined" 문자열 입력 방지
+                        alert("'undefined'라는 값은 옵션으로 추가할 수 없습니다.");
+                        addInput.value = '';
+                        return;
+                    }
+                    if (/\s|&|\?|#|\.|\/|\\/.test(originalNewValue)) { alert("띄어쓰기 및 특수문자(&, ?, #, ., /, \\)는 사용할 수 없습니다."); return; }
+                    if (/[^a-z0-9_\-]/.test(lowerCaseNewValue)) { alert("Key 값(소문자로 변환된 값)은 영문 소문자, 숫자, 언더스코어(_), 하이픈(-)만 사용할 수 있습니다."); return; }
+
+                    let existsInCurrentDropdown = false;
+                    optionsList.querySelectorAll('li[data-value]').forEach(li => { if (li.dataset.value === lowerCaseNewValue) existsInCurrentDropdown = true; });
+                    if (existsInCurrentDropdown) { alert("이미 현재 드롭다운 목록에 존재하는 값입니다 (소문자 기준)."); return; }
+
+                    const newLi = createOptionLi(originalNewValue, originalNewValue, 'custom');
+                    optionsList.insertBefore(newLi, addOptionButton);
+                    // saveCustomOptionsToStorage(baseId); 
+
+                    console.log(`새 옵션 '${originalNewValue}'은(는) 로컬 스토리지에만 저장되었습니다.`);
+
+                    selectedValueDiv.textContent = originalNewValue;
+                    hiddenInput.value = lowerCaseNewValue;
+                    addInputContainer.classList.add('hidden');
+                    optionsList.classList.add('hidden');
+                    updateFinalURL();
+                }
+            });
+            addInput.addEventListener('blur', () => {
+                setTimeout(() => { if (!addInputContainer.contains(document.activeElement)) { addInputContainer.classList.add('hidden'); } }, 150);
+            });
         }
-        const headers = lines[0].split(',').map(h => String(h).trim().replace(/^"|"$/g, ''));
-        const historyData = [];
 
-        // History 시트의 컬럼명에 맞춰 인덱스 찾기
-        const createdAtIdx = headers.indexOf('생성일시'); // 실제 시트 컬럼명으로 변경
-        const sourceIdx = headers.indexOf('Source');
-        const mediumIdx = headers.indexOf('Medium');
-        const campaignIdx = headers.indexOf('Campaign');
-        const contentIdx = headers.indexOf('Content');
-        const termIdx = headers.indexOf('Term');
-        const pageUrlIdx = headers.indexOf('페이지 URL');
-        const finalUrlIdx = headers.indexOf('최종 URL');
-        const shortUrlIdx = headers.indexOf('단축 URL');
-
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i]) continue;
-            const columns = lines[i].split(',').map(s => String(s).trim().replace(/^"|"$/g, ''));
-            const entry = {};
-            if (createdAtIdx > -1) entry.timestamp = columns[createdAtIdx]; // 'timestamp' 키로 통일
-            if (sourceIdx > -1) entry.utm_source = columns[sourceIdx];
-            if (mediumIdx > -1) entry.utm_medium = columns[mediumIdx];
-            if (campaignIdx > -1) entry.utm_campaign_combined = columns[campaignIdx];
-            if (contentIdx > -1) entry.utm_content_combined = columns[contentIdx];
-            if (termIdx > -1) entry.utm_term = columns[termIdx];
-            if (pageUrlIdx > -1) entry.page_url = columns[pageUrlIdx];
-            if (finalUrlIdx > -1) entry.final_url = columns[finalUrlIdx];
-            if (shortUrlIdx > -1) entry.short_url = columns[shortUrlIdx];
-            historyData.push(entry);
+        function closeOtherDropdowns(currentBaseId) {
+            dropdownBaseIds.forEach(baseId => {
+                if (baseId !== currentBaseId) {
+                    document.getElementById(`${baseId}_options_list`)?.classList.add('hidden');
+                    document.getElementById(`${baseId}_add_input_container`)?.classList.add('hidden');
+                }
+            });
         }
-
-        // 정렬 로직 (timestamp 기준)
-        return historyData.sort((a, b) => {
-            const dateA = new Date(a.timestamp || 0);
-            const dateB = new Date(b.timestamp || 0);
-            return (isNaN(dateB.getTime()) ? 0 : dateB.getTime()) - (isNaN(dateA.getTime()) ? 0 : dateA.getTime());
+        document.addEventListener('click', (event) => {
+            dropdownBaseIds.forEach(baseId => {
+                const dropdownElement = document.getElementById(`${baseId}_dropdown`);
+                if (dropdownElement && !dropdownElement.contains(event.target)) {
+                    document.getElementById(`${baseId}_options_list`)?.classList.add('hidden');
+                    document.getElementById(`${baseId}_add_input_container`)?.classList.add('hidden');
+                }
+            });
         });
 
-    } catch (error) {
-        console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 로딩 또는 파싱 실패:`, error);
-        return [];
-    } finally {
-        hideLoading();
-    }
-}
-// async function fetchHistoryData() { 
-//     try {
-//         const response = await fetch(HISTORY_JSON_URL);
-//         if (!response.ok) {
-//             console.warn(`히스토리 파일(${HISTORY_JSON_URL}) 없음 또는 불러오기 실패:`, response.status, response.statusText);
-//             return []; 
-//         }
-//         const responseText = await response.text(); 
-//         if (!responseText) {
-//             console.warn(`히스토리 파일(${HISTORY_JSON_URL}) 내용이 비어있습니다.`);
-//             return []; 
-//         }
-//         const data = JSON.parse(responseText); 
-//         if (!Array.isArray(data)) {
-//             console.warn(`히스토리 데이터(${HISTORY_JSON_URL}) 형식 오류. 배열이 아닙니다. 실제 내용:`, data);
-//             return []; 
-//         }
-//         return data.sort((a, b) => {
-//             const timeA = a?.timestamp || (a?.formData && a.formData.timestamp) || 0;
-//             const timeB = b?.timestamp || (b?.formData && b.formData.timestamp) || 0;
-//             const dateA = new Date(timeA);
-//             const dateB = new Date(timeB);
-//             const valA = !isNaN(dateA.getTime()) ? dateA.getTime() : 0;
-//             const valB = !isNaN(dateB.getTime()) ? dateB.getTime() : 0;
-//             return valB - valA; 
-//         });
-//     } catch (error) {
-//         console.warn(`히스토리 데이터(${HISTORY_JSON_URL}) 로딩 또는 파싱 실패:`, error);
-//         return []; 
-//     }
-// }
-async function renderHistoryTable() { 
-    const tableBody = document.getElementById('historyTable')?.getElementsByTagName('tbody')[0];
-    if (!tableBody) { console.error("History table body (tbody) 요소를 찾을 수 없습니다!"); return; }
-    tableBody.innerHTML = ''; 
-
-    showLoading("이력 로딩 중...");
-    let historyData;
-    try {
-        historyData = await fetchHistoryData(); 
-    } catch (fetchError) {
-        console.error("fetchHistoryData 함수 호출 중 오류 발생:", fetchError);
-        historyData = []; 
-    }
-    hideLoading();
-
-    if (!Array.isArray(historyData) || historyData.length === 0) { 
-        const row = tableBody.insertRow();
-        const cell = row.insertCell();
-        cell.colSpan = 9; 
-        cell.textContent = '표시할 생성 이력이 없습니다.';
-        cell.style.textAlign = 'center';
-        return;
-    }
-
-    historyData.forEach(item => {
-        const row = tableBody.insertRow(); 
-        let displayTimestamp = 'N/A';
-        const itemTimestamp = item?.timestamp || (item?.formData && item.formData.timestamp);
-        if (itemTimestamp) {
-            try {
-                displayTimestamp = new Date(itemTimestamp).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short'});
-            } catch (e) { console.warn("Error parsing timestamp for history: ", itemTimestamp, e); }
-        }
-        row.insertCell().textContent = displayTimestamp;
-        row.insertCell().textContent = item?.utm_source || (item?.formData?.utm_source) || 'N';
-        row.insertCell().textContent = item?.utm_medium || (item?.formData?.utm_medium) || 'N';
-        row.insertCell().textContent = item?.utm_campaign_combined || (item?.formData?.utm_campaign_combined) || 'N';
-        row.insertCell().textContent = item?.utm_content_combined || (item?.formData?.utm_content_combined) || 'N';
-        row.insertCell().textContent = item?.utm_term || (item?.formData?.utm_term) || 'N';
-        
-        const pageUrlCell = row.insertCell();
-        const originalPageUrl = item?.page_url || (item?.formData && item.formData.page_url) || '';
-        pageUrlCell.textContent = originalPageUrl;
-        pageUrlCell.title = originalPageUrl;
-        pageUrlCell.style.cssText = 'max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
-
-        const finalUrlCell = row.insertCell();
-        const finalUrl = item?.final_url || (item?.formData && item.formData.final_url) || '';
-        finalUrlCell.textContent = finalUrl;
-        finalUrlCell.title = finalUrl; 
-        finalUrlCell.style.cssText = 'max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
-        
-        const shortUrlCell = row.insertCell();
-        const shortUrl = item?.short_url || ''; 
-        shortUrlCell.textContent = shortUrl || 'N/A';
-        shortUrlCell.title = shortUrl;
-        shortUrlCell.style.cssText = 'max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
-    });
-}
-function copyLink() { 
-    const input = document.getElementById("shortUrlInput");
-    if (!input || !input.value) {
-        alert("복사할 단축 URL이 없습니다."); return;
-    }
-    input.select(); input.setSelectionRange(0, 99999); 
-    try {
-        const successful = document.execCommand("copy");
-        if (successful) { alert("✅ 단축 URL 복사 완료!"); } 
-        else { alert("❌ 단축 URL 복사에 실패했습니다. 직접 복사해주세요."); }
-    } catch (err) {
-        alert("❌ 복사 기능 사용 중 오류가 발생했습니다."); console.error('Copy error', err);
-    }
-    if (window.getSelection) { window.getSelection().removeAllRanges(); } 
-    else if (document.selection) { document.selection.empty(); }
-}
-
-// ===================================================================================
-// === 폼 제출 이벤트 리스너 (핵심 로직: 마스터 옵션 중복 확인 및 n8n 데이터 구성) ===
-// ===================================================================================
-// index.html 내 첫 번째(주요) submit 이벤트 리스너
-document.getElementById("utmForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    showLoading("UTM 링크 생성 및 전송 중...");
-
-    // 1. 필수 항목 유효성 검사 (getValueOrN 사용)
-    const requiredFieldsCheck = [
-        { id: "page_url", name: "Page URL" }, { id: "source", name: "UTM Source" },
-        { id: "medium", name: "UTM Medium" }, { id: "campaign_date", name: "날짜" },
-        { id: "ad_type", name: "광고타입" }, { id: "device_type", name: "기기카테고리" }
-    ];
-
-    for (let field of requiredFieldsCheck) {
-        // getValueOrN은 hidden input의 소문자화된 값을 가져오거나, "-- 선택하세요 --"일 경우 "n"을 반환.
-        // 페이지 URL, 날짜 등 직접 입력 필드는 해당 input의 값을 직접 확인해야 함.
-        let valueToCheck;
-        if (document.getElementById(field.id).tagName === 'INPUT' && document.getElementById(field.id).type === 'text') {
-            valueToCheck = document.getElementById(field.id).value.trim();
-        } else { // 드롭다운의 hidden input
-            valueToCheck = getValueOrN(field.id);
-        }
-
-        if (valueToCheck === "" || valueToCheck === "n") {
-            alert(`필수 항목 '${field.name}'을(를) 선택 또는 입력해주세요.`);
-            hideLoading();
-            const elementToFocus = document.getElementById(field.id);
-            if (document.getElementById(`${field.id}_dropdown`)) {
-                 document.getElementById(`${field.id}_selected_value`)?.focus(); // 드롭다운 선택창에 포커스
-            } else {
-                 elementToFocus?.focus();
+        function getValueOrN(elementId) {
+            const element = document.getElementById(elementId);
+            let value = "";
+            if (element) { // text input 또는 hidden input
+                value = element.value.trim();
             }
-            return;
-        }
-    }
 
-    // 2. 최종 URL 및 조합된 캠페인/콘텐츠 값 업데이트
-    updateFinalURL(); // 이 함수는 내부적으로 getValueOrN을 사용하여 hidden input 값을 참조
-
-    // 3. n8n으로 전송할 최종 데이터 객체 구성
-    const formDataForN8n = {
-        page_url: document.getElementById('page_url').value.trim(),
-        utm_campaign_combined: document.getElementById('utm_campaign').value.trim(),
-        utm_content_combined: document.getElementById('utm_content').value.trim(),
-        final_url: document.getElementById('final_url').value.trim(), // 최종 생성된 URL (UTM 파라미터 포함)
-        timestamp: new Date().toISOString()
-    };
-
-    // 각 UTM 파라미터의 최종 선택/입력된 값 (소문자화된 key 값)을 formDataForN8n에 추가
-    // parametersToLog 배열은 keyForN8n을 정의하여, Map Fields 노드가 이 키들을 사용하게 함.
-    const parametersToLog = [
-        { id: 'source', keyForN8n: 'utm_source' }, { id: 'medium', keyForN8n: 'utm_medium' },
-        { id: 'campaign_date', keyForN8n: 'campaign_date' }, // 직접 입력 값
-        { id: 'ad_type', keyForN8n: 'ad_type' },
-        { id: 'campaign_goal', keyForN8n: 'campaign_goal' },
-        { id: 'event_type', keyForN8n: 'event_type' },
-        { id: 'product_category', keyForN8n: 'product_category' },
-        { id: 'ad_target', keyForN8n: 'ad_target' },
-        { id: 'creative_type', keyForN8n: 'creative_type' },
-        { id: 'device_type', keyForN8n: 'device_type' },
-        { id: 'content_action', keyForN8n: 'content_action' },
-        { id: 'content_detail', keyForN8n: 'content_detail' },     // 직접 입력 값
-        { id: 'content_version', keyForN8n: 'content_version' }, // 직접 입력 값
-        { id: 'utm_term', keyForN8n: 'utm_term' }                 // 직접 입력 값
-    ];
-
-    for (const param of parametersToLog) {
-        let elementValue;
-        const inputElement = document.getElementById(param.id);
-        // 직접 입력 필드 (text input) 와 커스텀 드롭다운 (hidden input) 구분
-        if (inputElement.name.endsWith('_form')) { // 예: campaign_date_form, content_detail_form 등
-            elementValue = inputElement.value.trim(); // 원본 텍스트 값 사용 (필요시 소문자화)
-            if (elementValue === "") elementValue = "n"; // 빈 값은 "n"으로 처리
-        } else { // 드롭다운 (hidden input 사용)
-            elementValue = getValueOrN(param.id); // getValueOrN은 이미 소문자화 및 "n" 처리
+            const selectedDisplayElement = document.getElementById(`${elementId}_selected_value`); // 드롭다운의 경우에만 존재
+            if (selectedDisplayElement && selectedDisplayElement.textContent.trim() === "-- 선택하세요 --") {
+                return "n";
+            }
+            if (value === "" || value.toLowerCase() === "n") { // 직접 입력 필드가 비었거나, hidden input이 "n"이거나 비었으면
+                return "n";
+            }
+            return value.toLowerCase(); // 최종적으로 소문자화된 값 (또는 사용자가 직접 입력한 값의 소문자)
         }
 
-        if (elementValue !== "n") {
-            formDataForN8n[param.keyForN8n] = elementValue;
+        function updateFinalURL() {
+            const pageUrl = document.getElementById("page_url").value.trim();
+            const utmSource = getValueOrN("source");
+            const utmMedium = getValueOrN("medium");
+            const campaignDate = getValueOrN("campaign_date");
+            const adType = getValueOrN("ad_type");
+            const campaignGoal = getValueOrN("campaign_goal");
+            const eventType = getValueOrN("event_type");
+            const productCategory = getValueOrN("product_category");
+            const adTarget = getValueOrN("ad_target");
+            const creativeType = getValueOrN("creative_type");
+            const deviceType = getValueOrN("device_type");
+
+            const utmCampaignParts = [
+                campaignDate, adType, campaignGoal, eventType,
+                productCategory, adTarget, creativeType, deviceType
+            ];
+            const utmCampaign = utmCampaignParts.map(part => part === "n" ? "N" : part).join("_");
+            document.getElementById("utm_campaign").value = utmCampaign;
+
+            const contentAction = getValueOrN("content_action");
+            const contentDetail = getValueOrN("content_detail");
+            const contentVersion = getValueOrN("content_version");
+
+            const utmContentParts = [contentAction, contentDetail, contentVersion].map(part => part === "n" ? "N" : part);
+            const utmContent = utmContentParts.every(part => part === "N") ? "N" : utmContentParts.join("_");
+            document.getElementById("utm_content").value = utmContent;
+
+            const utmTerm = getValueOrN("utm_term");
+
+            let finalURLGenerated = pageUrl;
+            if (!pageUrl) {
+                document.getElementById("final_url").value = "";
+                return;
+            }
+            const params = [];
+            if (utmSource && utmSource !== "n") params.push(`utm_source=${encodeURIComponent(utmSource)}`);
+            if (utmMedium && utmMedium !== "n") params.push(`utm_medium=${encodeURIComponent(utmMedium)}`);
+
+            const defaultCampaign = Array(utmCampaignParts.length).fill("N").join("_");
+            if (utmCampaign && utmCampaign !== defaultCampaign) {
+                params.push(`utm_campaign=${encodeURIComponent(utmCampaign)}`);
+            }
+
+            const defaultContent = "N_N_N";
+            if (utmContent && utmContent !== "N" && utmContent !== defaultContent) {
+                params.push(`utm_content=${encodeURIComponent(utmContent)}`);
+            }
+            if (utmTerm && utmTerm !== "n") params.push(`utm_term=${encodeURIComponent(utmTerm)}`);
+
+            if (params.length > 0) {
+                finalURLGenerated += (pageUrl.includes('?') ? '&' : '?') + params.join('&');
+            }
+            document.getElementById("final_url").value = finalURLGenerated;
         }
-    }
 
-    // "params" (옵션 마스터) 시트에 추가할 "새로운" 옵션 값들만 식별
-    const optionsForMasterUpdate = {};
-    console.log("--- Identifying new options to add to master sheet (Submit Event) ---");
-    for (const baseId of dropdownBaseIds) { // dropdownBaseIds: 드롭다운의 기본 ID 목록
-        const selectedValueDisplayElement = document.getElementById(`${baseId}_selected_value`); // 화면 표시 텍스트
-        // const hiddenInputElement = document.getElementById(baseId); // 실제 선택된 key 값 (소문자)
+        async function fetchHistoryData() {
+            showLoading("이력 로딩 중 (Google Sheet)...");
+            try {
+                const response = await fetch(GOOGLE_SHEET_HISTORY_URL); // 새로운 URL 사용
+                if (!response.ok) {
+                    console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 없음 또는 불러오기 실패:`, response.status, response.statusText);
+                    hideLoading();
+                    return [];
+                }
+                const csvText = await response.text();
+                if (!csvText) {
+                    console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 내용이 비어있습니다.`);
+                    hideLoading();
+                    return [];
+                }
 
-        if (selectedValueDisplayElement) {
-            const selectedValueDisplayText = selectedValueDisplayElement.textContent.trim(); // 화면에 표시된 원본 값
+                // CSV 파싱 (기존 n8n JSON의 history 시트 컬럼명에 맞춰야 함)
+                const lines = csvText.split(/\r?\n/);
+                if (lines.length < 2) { // 헤더 + 데이터 최소 1줄
+                    console.warn("Google Sheet 히스토리 데이터가 충분하지 않습니다.");
+                    hideLoading();
+                    return [];
+                }
+                const headers = lines[0].split(',').map(h => String(h).trim().replace(/^"|"$/g, ''));
+                const historyData = [];
 
-            if (selectedValueDisplayText && selectedValueDisplayText.toLowerCase() !== "n" && selectedValueDisplayText !== "-- 선택하세요 --" && selectedValueDisplayText.toLowerCase() !== "undefined") {
-                const masterListForThisCategory = masterOptionLists[baseId] || new Set();
-                let isNewForMaster = true;
-                const lowercasedSelectedDisplayText = selectedValueDisplayText.toLowerCase();
+                // History 시트의 컬럼명에 맞춰 인덱스 찾기
+                const createdAtIdx = headers.indexOf('생성일시'); // 실제 시트 컬럼명으로 변경
+                const sourceIdx = headers.indexOf('Source');
+                const mediumIdx = headers.indexOf('Medium');
+                const campaignIdx = headers.indexOf('Campaign');
+                const contentIdx = headers.indexOf('Content');
+                const termIdx = headers.indexOf('Term');
+                const pageUrlIdx = headers.indexOf('페이지 URL');
+                const finalUrlIdx = headers.indexOf('최종 URL');
+                const shortUrlIdx = headers.indexOf('단축 URL');
 
-                if (masterListForThisCategory.size > 0) {
-                    for (const masterOption of masterListForThisCategory) {
-                        if (String(masterOption).trim().toLowerCase() === lowercasedSelectedDisplayText) {
-                            isNewForMaster = false;
-                            break;
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i]) continue;
+                    const columns = lines[i].split(',').map(s => String(s).trim().replace(/^"|"$/g, ''));
+                    const entry = {};
+                    if (createdAtIdx > -1) entry.timestamp = columns[createdAtIdx]; // 'timestamp' 키로 통일
+                    if (sourceIdx > -1) entry.utm_source = columns[sourceIdx];
+                    if (mediumIdx > -1) entry.utm_medium = columns[mediumIdx];
+                    if (campaignIdx > -1) entry.utm_campaign_combined = columns[campaignIdx];
+                    if (contentIdx > -1) entry.utm_content_combined = columns[contentIdx];
+                    if (termIdx > -1) entry.utm_term = columns[termIdx];
+                    if (pageUrlIdx > -1) entry.page_url = columns[pageUrlIdx];
+                    if (finalUrlIdx > -1) entry.final_url = columns[finalUrlIdx];
+                    if (shortUrlIdx > -1) entry.short_url = columns[shortUrlIdx];
+                    historyData.push(entry);
+                }
+
+                // 정렬 로직 (timestamp 기준)
+                return historyData.sort((a, b) => {
+                    const dateA = new Date(a.timestamp || 0);
+                    const dateB = new Date(b.timestamp || 0);
+                    return (isNaN(dateB.getTime()) ? 0 : dateB.getTime()) - (isNaN(dateA.getTime()) ? 0 : dateA.getTime());
+                });
+
+            } catch (error) {
+                console.warn(`Google Sheet 히스토리(${GOOGLE_SHEET_HISTORY_URL}) 로딩 또는 파싱 실패:`, error);
+                return [];
+            } finally {
+                hideLoading();
+            }
+        }
+        // async function fetchHistoryData() { 
+        //     try {
+        //         const response = await fetch(HISTORY_JSON_URL);
+        //         if (!response.ok) {
+        //             console.warn(`히스토리 파일(${HISTORY_JSON_URL}) 없음 또는 불러오기 실패:`, response.status, response.statusText);
+        //             return []; 
+        //         }
+        //         const responseText = await response.text(); 
+        //         if (!responseText) {
+        //             console.warn(`히스토리 파일(${HISTORY_JSON_URL}) 내용이 비어있습니다.`);
+        //             return []; 
+        //         }
+        //         const data = JSON.parse(responseText); 
+        //         if (!Array.isArray(data)) {
+        //             console.warn(`히스토리 데이터(${HISTORY_JSON_URL}) 형식 오류. 배열이 아닙니다. 실제 내용:`, data);
+        //             return []; 
+        //         }
+        //         return data.sort((a, b) => {
+        //             const timeA = a?.timestamp || (a?.formData && a.formData.timestamp) || 0;
+        //             const timeB = b?.timestamp || (b?.formData && b.formData.timestamp) || 0;
+        //             const dateA = new Date(timeA);
+        //             const dateB = new Date(timeB);
+        //             const valA = !isNaN(dateA.getTime()) ? dateA.getTime() : 0;
+        //             const valB = !isNaN(dateB.getTime()) ? dateB.getTime() : 0;
+        //             return valB - valA; 
+        //         });
+        //     } catch (error) {
+        //         console.warn(`히스토리 데이터(${HISTORY_JSON_URL}) 로딩 또는 파싱 실패:`, error);
+        //         return []; 
+        //     }
+        // }
+        async function renderHistoryTable() {
+            const tableBody = document.getElementById('historyTable')?.getElementsByTagName('tbody')[0];
+            if (!tableBody) { console.error("History table body (tbody) 요소를 찾을 수 없습니다!"); return; }
+            tableBody.innerHTML = '';
+
+            showLoading("이력 로딩 중...");
+            let historyData;
+            try {
+                historyData = await fetchHistoryData();
+            } catch (fetchError) {
+                console.error("fetchHistoryData 함수 호출 중 오류 발생:", fetchError);
+                historyData = [];
+            }
+            hideLoading();
+
+            if (!Array.isArray(historyData) || historyData.length === 0) {
+                const row = tableBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 9;
+                cell.textContent = '표시할 생성 이력이 없습니다.';
+                cell.style.textAlign = 'center';
+                return;
+            }
+
+            historyData.forEach(item => {
+                const row = tableBody.insertRow();
+                let displayTimestamp = 'N/A';
+                const itemTimestamp = item?.timestamp || (item?.formData && item.formData.timestamp);
+                if (itemTimestamp) {
+                    try {
+                        displayTimestamp = new Date(itemTimestamp).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' });
+                    } catch (e) { console.warn("Error parsing timestamp for history: ", itemTimestamp, e); }
+                }
+                row.insertCell().textContent = displayTimestamp;
+                row.insertCell().textContent = item?.utm_source || (item?.formData?.utm_source) || 'N';
+                row.insertCell().textContent = item?.utm_medium || (item?.formData?.utm_medium) || 'N';
+                row.insertCell().textContent = item?.utm_campaign_combined || (item?.formData?.utm_campaign_combined) || 'N';
+                row.insertCell().textContent = item?.utm_content_combined || (item?.formData?.utm_content_combined) || 'N';
+                row.insertCell().textContent = item?.utm_term || (item?.formData?.utm_term) || 'N';
+
+                const pageUrlCell = row.insertCell();
+                const originalPageUrl = item?.page_url || (item?.formData && item.formData.page_url) || '';
+                pageUrlCell.textContent = originalPageUrl;
+                pageUrlCell.title = originalPageUrl;
+                pageUrlCell.style.cssText = 'max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+
+                const finalUrlCell = row.insertCell();
+                const finalUrl = item?.final_url || (item?.formData && item.formData.final_url) || '';
+                finalUrlCell.textContent = finalUrl;
+                finalUrlCell.title = finalUrl;
+                finalUrlCell.style.cssText = 'max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+
+                const shortUrlCell = row.insertCell();
+                const shortUrl = item?.short_url || '';
+                shortUrlCell.textContent = shortUrl || 'N/A';
+                shortUrlCell.title = shortUrl;
+                shortUrlCell.style.cssText = 'max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+            });
+        }
+        function copyLink() {
+            const input = document.getElementById("shortUrlInput");
+            if (!input || !input.value) {
+                alert("복사할 단축 URL이 없습니다."); return;
+            }
+            input.select(); input.setSelectionRange(0, 99999);
+            try {
+                const successful = document.execCommand("copy");
+                if (successful) { alert("✅ 단축 URL 복사 완료!"); }
+                else { alert("❌ 단축 URL 복사에 실패했습니다. 직접 복사해주세요."); }
+            } catch (err) {
+                alert("❌ 복사 기능 사용 중 오류가 발생했습니다."); console.error('Copy error', err);
+            }
+            if (window.getSelection) { window.getSelection().removeAllRanges(); }
+            else if (document.selection) { document.selection.empty(); }
+        }
+
+        // ===================================================================================
+        // === 폼 제출 이벤트 리스너 (핵심 로직: 마스터 옵션 중복 확인 및 n8n 데이터 구성) ===
+        // ===================================================================================
+        // index.html 내 첫 번째(주요) submit 이벤트 리스너
+        document.getElementById("utmForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            showLoading("UTM 링크 생성 및 전송 중...");
+
+            // 1. 필수 항목 유효성 검사 (getValueOrN 사용)
+            const requiredFieldsCheck = [
+                { id: "page_url", name: "Page URL" }, { id: "source", name: "UTM Source" },
+                { id: "medium", name: "UTM Medium" }, { id: "campaign_date", name: "날짜" },
+                { id: "ad_type", name: "광고타입" }, { id: "device_type", name: "기기카테고리" }
+            ];
+
+            for (let field of requiredFieldsCheck) {
+                // getValueOrN은 hidden input의 소문자화된 값을 가져오거나, "-- 선택하세요 --"일 경우 "n"을 반환.
+                // 페이지 URL, 날짜 등 직접 입력 필드는 해당 input의 값을 직접 확인해야 함.
+                let valueToCheck;
+                if (document.getElementById(field.id).tagName === 'INPUT' && document.getElementById(field.id).type === 'text') {
+                    valueToCheck = document.getElementById(field.id).value.trim();
+                } else { // 드롭다운의 hidden input
+                    valueToCheck = getValueOrN(field.id);
+                }
+
+                if (valueToCheck === "" || valueToCheck === "n") {
+                    alert(`필수 항목 '${field.name}'을(를) 선택 또는 입력해주세요.`);
+                    hideLoading();
+                    const elementToFocus = document.getElementById(field.id);
+                    if (document.getElementById(`${field.id}_dropdown`)) {
+                        document.getElementById(`${field.id}_selected_value`)?.focus(); // 드롭다운 선택창에 포커스
+                    } else {
+                        elementToFocus?.focus();
+                    }
+                    return;
+                }
+            }
+
+            // 2. 최종 URL 및 조합된 캠페인/콘텐츠 값 업데이트
+            updateFinalURL(); // 이 함수는 내부적으로 getValueOrN을 사용하여 hidden input 값을 참조
+
+            // 3. n8n으로 전송할 최종 데이터 객체 구성
+            const formDataForN8n = {
+                page_url: document.getElementById('page_url').value.trim(),
+                utm_campaign_combined: document.getElementById('utm_campaign').value.trim(),
+                utm_content_combined: document.getElementById('utm_content').value.trim(),
+                final_url: document.getElementById('final_url').value.trim(), // 최종 생성된 URL (UTM 파라미터 포함)
+                timestamp: new Date().toISOString()
+            };
+
+            // 각 UTM 파라미터의 최종 선택/입력된 값 (소문자화된 key 값)을 formDataForN8n에 추가
+            // parametersToLog 배열은 keyForN8n을 정의하여, Map Fields 노드가 이 키들을 사용하게 함.
+            const parametersToLog = [
+                { id: 'source', keyForN8n: 'utm_source' }, { id: 'medium', keyForN8n: 'utm_medium' },
+                { id: 'campaign_date', keyForN8n: 'campaign_date' }, // 직접 입력 값
+                { id: 'ad_type', keyForN8n: 'ad_type' },
+                { id: 'campaign_goal', keyForN8n: 'campaign_goal' },
+                { id: 'event_type', keyForN8n: 'event_type' },
+                { id: 'product_category', keyForN8n: 'product_category' },
+                { id: 'ad_target', keyForN8n: 'ad_target' },
+                { id: 'creative_type', keyForN8n: 'creative_type' },
+                { id: 'device_type', keyForN8n: 'device_type' },
+                { id: 'content_action', keyForN8n: 'content_action' },
+                { id: 'content_detail', keyForN8n: 'content_detail' },     // 직접 입력 값
+                { id: 'content_version', keyForN8n: 'content_version' }, // 직접 입력 값
+                { id: 'utm_term', keyForN8n: 'utm_term' }                 // 직접 입력 값
+            ];
+
+            for (const param of parametersToLog) {
+                let elementValue;
+                const inputElement = document.getElementById(param.id);
+                // 직접 입력 필드 (text input) 와 커스텀 드롭다운 (hidden input) 구분
+                if (inputElement.name.endsWith('_form')) { // 예: campaign_date_form, content_detail_form 등
+                    elementValue = inputElement.value.trim(); // 원본 텍스트 값 사용 (필요시 소문자화)
+                    if (elementValue === "") elementValue = "n"; // 빈 값은 "n"으로 처리
+                } else { // 드롭다운 (hidden input 사용)
+                    elementValue = getValueOrN(param.id); // getValueOrN은 이미 소문자화 및 "n" 처리
+                }
+
+                // Current logic: only adds if not "n"
+                // if (elementValue !== "n") { 
+                //     formDataForN8n[param.keyForN8n] = elementValue;
+                // }
+
+                // === MODIFICATION START ===
+                // Modified logic: always add the parameter, even if its value is "n"
+                formDataForN8n[param.keyForN8n] = elementValue;
+                // === MODIFICATION END ===
+            }
+            // ...
+
+            // "params" (옵션 마스터) 시트에 추가할 "새로운" 옵션 값들만 식별
+            const optionsForMasterUpdate = {};
+            console.log("--- Identifying new options to add to master sheet (Submit Event) ---");
+            for (const baseId of dropdownBaseIds) { // dropdownBaseIds: 드롭다운의 기본 ID 목록
+                const selectedValueDisplayElement = document.getElementById(`${baseId}_selected_value`); // 화면 표시 텍스트
+                // const hiddenInputElement = document.getElementById(baseId); // 실제 선택된 key 값 (소문자)
+
+                if (selectedValueDisplayElement) {
+                    const selectedValueDisplayText = selectedValueDisplayElement.textContent.trim(); // 화면에 표시된 원본 값
+
+                    if (selectedValueDisplayText && selectedValueDisplayText.toLowerCase() !== "n" && selectedValueDisplayText !== "-- 선택하세요 --" && selectedValueDisplayText.toLowerCase() !== "undefined") {
+                        const masterListForThisCategory = masterOptionLists[baseId] || new Set();
+                        let isNewForMaster = true;
+                        const lowercasedSelectedDisplayText = selectedValueDisplayText.toLowerCase();
+
+                        if (masterListForThisCategory.size > 0) {
+                            for (const masterOption of masterListForThisCategory) {
+                                if (String(masterOption).trim().toLowerCase() === lowercasedSelectedDisplayText) {
+                                    isNewForMaster = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isNewForMaster) {
+                            // n8n으로 보낼 때는 Map Fields의 키와 맞추기 위해 baseId를 사용
+                            // 예: optionsForMasterUpdate['utm_source'] = '새로운소스명'
+                            // 실제 CSV 컬럼명과의 매핑은 n8n의 Format to Update Sheet 노드에서 처리
+                            const keyForN8n = parametersToLog.find(p => p.id === baseId)?.keyForN8n || baseId;
+                            optionsForMasterUpdate[keyForN8n] = selectedValueDisplayText; // 원본 텍스트 값 전송
                         }
                     }
                 }
-                if (isNewForMaster) {
-                    // n8n으로 보낼 때는 Map Fields의 키와 맞추기 위해 baseId를 사용
-                    // 예: optionsForMasterUpdate['utm_source'] = '새로운소스명'
-                    // 실제 CSV 컬럼명과의 매핑은 n8n의 Format to Update Sheet 노드에서 처리
-                    const keyForN8n = parametersToLog.find(p => p.id === baseId)?.keyForN8n || baseId;
-                    optionsForMasterUpdate[keyForN8n] = selectedValueDisplayText; // 원본 텍스트 값 전송
+            }
+            if (Object.keys(optionsForMasterUpdate).length > 0) {
+                formDataForN8n.options_to_add_to_master_sheet = optionsForMasterUpdate;
+            }
+            console.log("--- 최종 formDataForN8n (to be sent to n8n):", formDataForN8n, " ---");
+
+
+            // 4. n8n으로 데이터 전송 및 응답 처리
+            try {
+                const n8nUrl = N8N_WEBHOOK_URL; // Production URL 사용 중
+
+                // URL 유효성 검사 (localhost HTTPS 경고만 남기거나, 필요에 따라 단순화)
+                if (!n8nUrl) {
+                    alert("n8n 웹훅 URL이 설정되지 않았습니다.\nUTM 링크가 생성되었습니다 (단축 및 이력/시트 저장 안됨):\n" + formDataForN8n.final_url);
+                    hideLoading();
+                    return;
                 }
+                if (n8nUrl.startsWith('http://localhost') && window.location.protocol === 'https:') {
+                    alert("경고: 현재 페이지는 HTTPS이나 n8n 웹훅은 HTTP 로컬호스트입니다...\nUTM 링크가 생성되었습니다 (단축 및 이력/시트 저장 안됨):\n" + formDataForN8n.final_url);
+                    hideLoading();
+                    return;
+                }
+
+                const res = await fetch(n8nUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formDataForN8n)
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(`n8n 웹훅 응답 오류 (${res.status}): ${errorText || res.statusText}`);
+                }
+
+                const result = await res.json(); // n8n의 "Respond to Webhook" 노드가 보내는 JSON 응답
+                console.log("Response from n8n:", result);
+
+                // HTML 조각 삽입 (두 번째 리스너의 기능 통합)
+                const formElement = document.getElementById('utmForm');
+                const responseContainerDiv = document.getElementById("responseContainer");
+                const shortUrlInputEl = document.getElementById("shortUrlInput");
+
+                // shortUrlHtml 처리
+                if (result.shortUrlHtml && formElement) {
+                    // 기존 shortUrlContainer가 있다면 내용만 교체, 없다면 form 뒤에 삽입
+                    let shortUrlDisplayDiv = document.getElementById('shortUrlContainer');
+                    if (!shortUrlDisplayDiv) {
+                        shortUrlDisplayDiv = document.createElement('div');
+                        shortUrlDisplayDiv.id = 'shortUrlContainer';
+                        formElement.insertAdjacentElement('afterend', shortUrlDisplayDiv); // form 다음에 삽입
+                    }
+                    shortUrlDisplayDiv.innerHTML = result.shortUrlHtml;
+
+                    // 추가적으로 #responseContainer의 input에도 값을 채워넣을 수 있음
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = result.shortUrlHtml;
+                    const shortUrlFromHtml = tempDiv.querySelector('#shortUrlOutput')?.value || tempDiv.querySelector('#shortUrl')?.value;
+                    if (shortUrlInputEl && shortUrlFromHtml) {
+                        shortUrlInputEl.value = shortUrlFromHtml;
+                    }
+                    if (responseContainerDiv) responseContainerDiv.style.display = "block";
+
+                } else if (result.short_url && shortUrlInputEl) { // short_url 키만 오는 경우
+                    shortUrlInputEl.value = result.short_url;
+                    if (responseContainerDiv) responseContainerDiv.style.display = "block";
+                } else {
+                    console.warn("n8n 응답에 shortUrlHtml 또는 short_url 키가 없습니다.");
+                    if (responseContainerDiv) responseContainerDiv.style.display = "none";
+                }
+
+                // 이력 테이블 업데이트 (newTableBodyHtml 또는 newRowHtml 사용)
+                const historyTableBody = document.getElementById('historyTable')?.getElementsByTagName('tbody')[0];
+                if (historyTableBody) {
+                    if (result.newTableBodyHtml) { // 전체 tbody를 교체 (n8n에서 모든 행을 다시 만들어 보내는 경우)
+                        historyTableBody.innerHTML = result.newTableBodyHtml;
+                    }
+                    // 만약 n8n에서 새 행 하나만 보내고 프론트에서 추가하는 로직을 원한다면,
+                    // result.newSingleRowHtml (예시) 같은 키로 받고 아래처럼 추가:
+                    // else if (result.newSingleRowHtml) {
+                    // historyTableBody.insertAdjacentHTML('afterbegin', result.newSingleRowHtml); // 맨 위에 추가
+                    // }
+                }
+
+                if (result.shortUrlHtml || result.short_url) {
+                    alert("UTM 링크 생성, 단축 및 시트 저장 요청 완료!");
+                } else {
+                    alert("단축 URL을 받아오지 못했습니다. n8n 워크플로우 응답을 확인하세요.\n(시트 저장은 시도되었을 수 있습니다)\n최종 URL: " + formDataForN8n.final_url);
+                }
+
+            } catch (err) {
+                console.error("n8n 전송 또는 처리 오류:", err);
+                alert(`서버 통신 또는 처리 중 오류가 발생했습니다: ${err.message}\n(UTM 링크는 생성되었으나 단축 및 이력/시트 저장은 실패했을 수 있습니다)\n최종 URL: ${formDataForN8n.final_url}`);
+                document.getElementById("responseContainer").style.display = "none";
+            } finally {
+                hideLoading();
+                await renderHistoryTable(); // 항상 최신 이력으로 테이블 다시 그림
+                document.getElementById("utmForm").reset();
+                // 드롭다운 기본값 재설정 및 최종 URL 필드 업데이트
+                dropdownBaseIds.forEach(baseId => { // 필수 항목 기본값 재설정
+                    if (baseId === 'source') setSelectedDropdownValue(baseId, 'google');
+                    else if (baseId === 'medium') setSelectedDropdownValue(baseId, 'cpc');
+                    else if (baseId === 'ad_type') setSelectedDropdownValue(baseId, 'da');
+                    else if (baseId === 'device_type') setSelectedDropdownValue(baseId, 'mo');
+                    else setSelectedDropdownValue(baseId, ''); // 나머지 선택적 항목은 '-- 선택하세요 --'
+                });
+                updateFinalURL();
             }
-        }
-    }
-    if (Object.keys(optionsForMasterUpdate).length > 0) {
-        formDataForN8n.options_to_add_to_master_sheet = optionsForMasterUpdate;
-    }
-    console.log("--- 최종 formDataForN8n (to be sent to n8n):", formDataForN8n, " ---");
-
-
-    // 4. n8n으로 데이터 전송 및 응답 처리
-    try {
-        const n8nUrl = N8N_WEBHOOK_URL; // Production URL 사용 중
-
-        // URL 유효성 검사 (localhost HTTPS 경고만 남기거나, 필요에 따라 단순화)
-        if (!n8nUrl) {
-            alert("n8n 웹훅 URL이 설정되지 않았습니다.\nUTM 링크가 생성되었습니다 (단축 및 이력/시트 저장 안됨):\n" + formDataForN8n.final_url);
-            hideLoading();
-            return;
-        }
-        if (n8nUrl.startsWith('http://localhost') && window.location.protocol === 'https:') {
-            alert("경고: 현재 페이지는 HTTPS이나 n8n 웹훅은 HTTP 로컬호스트입니다...\nUTM 링크가 생성되었습니다 (단축 및 이력/시트 저장 안됨):\n" + formDataForN8n.final_url);
-            hideLoading();
-            return;
-        }
-
-        const res = await fetch(n8nUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formDataForN8n)
         });
 
-        if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(`n8n 웹훅 응답 오류 (${res.status}): ${errorText || res.statusText}`);
-        }
+        // 드롭다운 값을 설정하는 헬퍼 함수 (필요시 사용)
+        function setSelectedDropdownValue(baseId, valueToSet) {
+            const selectedValueDiv = document.getElementById(`${baseId}_selected_value`);
+            const hiddenInput = document.getElementById(baseId);
+            const optionsList = document.getElementById(`${baseId}_options_list`);
 
-        const result = await res.json(); // n8n의 "Respond to Webhook" 노드가 보내는 JSON 응답
-        console.log("Response from n8n:", result);
+            if (!selectedValueDiv || !hiddenInput || !optionsList) return;
 
-        // HTML 조각 삽입 (두 번째 리스너의 기능 통합)
-        const formElement = document.getElementById('utmForm');
-        const responseContainerDiv = document.getElementById("responseContainer");
-        const shortUrlInputEl = document.getElementById("shortUrlInput");
-
-        // shortUrlHtml 처리
-        if (result.shortUrlHtml && formElement) {
-            // 기존 shortUrlContainer가 있다면 내용만 교체, 없다면 form 뒤에 삽입
-            let shortUrlDisplayDiv = document.getElementById('shortUrlContainer');
-            if (!shortUrlDisplayDiv) {
-                shortUrlDisplayDiv = document.createElement('div');
-                shortUrlDisplayDiv.id = 'shortUrlContainer';
-                formElement.insertAdjacentElement('afterend', shortUrlDisplayDiv); // form 다음에 삽입
+            if (valueToSet === '') { // "-- 선택하세요 --" 로 초기화
+                selectedValueDiv.textContent = '-- 선택하세요 --';
+                hiddenInput.value = '';
+                return;
             }
-            shortUrlDisplayDiv.innerHTML = result.shortUrlHtml;
 
-            // 추가적으로 #responseContainer의 input에도 값을 채워넣을 수 있음
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = result.shortUrlHtml;
-            const shortUrlFromHtml = tempDiv.querySelector('#shortUrlOutput')?.value || tempDiv.querySelector('#shortUrl')?.value;
-            if (shortUrlInputEl && shortUrlFromHtml) {
-                shortUrlInputEl.value = shortUrlFromHtml;
+            let optionFound = false;
+            optionsList.querySelectorAll('li[data-value]').forEach(li => {
+                if (li.dataset.value === valueToSet.toLowerCase()) {
+                    selectedValueDiv.textContent = li.querySelector('.option-content')?.textContent || valueToSet;
+                    hiddenInput.value = li.dataset.value;
+                    optionFound = true;
+                }
+            });
+            if (!optionFound) { // 옵션 목록에 없는 값이라면 (예: 초기화 시 기본값)
+                selectedValueDiv.textContent = valueToSet; // 표시 텍스트만이라도 설정
+                hiddenInput.value = valueToSet.toLowerCase();
             }
-             if (responseContainerDiv) responseContainerDiv.style.display = "block";
-
-        } else if (result.short_url && shortUrlInputEl) { // short_url 키만 오는 경우
-            shortUrlInputEl.value = result.short_url;
-            if (responseContainerDiv) responseContainerDiv.style.display = "block";
-        } else {
-            console.warn("n8n 응답에 shortUrlHtml 또는 short_url 키가 없습니다.");
-            if (responseContainerDiv) responseContainerDiv.style.display = "none";
         }
-
-        // 이력 테이블 업데이트 (newTableBodyHtml 또는 newRowHtml 사용)
-        const historyTableBody = document.getElementById('historyTable')?.getElementsByTagName('tbody')[0];
-        if (historyTableBody) {
-            if (result.newTableBodyHtml) { // 전체 tbody를 교체 (n8n에서 모든 행을 다시 만들어 보내는 경우)
-                historyTableBody.innerHTML = result.newTableBodyHtml;
-            }
-            // 만약 n8n에서 새 행 하나만 보내고 프론트에서 추가하는 로직을 원한다면,
-            // result.newSingleRowHtml (예시) 같은 키로 받고 아래처럼 추가:
-            // else if (result.newSingleRowHtml) {
-            // historyTableBody.insertAdjacentHTML('afterbegin', result.newSingleRowHtml); // 맨 위에 추가
-            // }
-        }
-
-        if (result.shortUrlHtml || result.short_url) {
-             alert("UTM 링크 생성, 단축 및 시트 저장 요청 완료!");
-        } else {
-             alert("단축 URL을 받아오지 못했습니다. n8n 워크플로우 응답을 확인하세요.\n(시트 저장은 시도되었을 수 있습니다)\n최종 URL: " + formDataForN8n.final_url);
-        }
-
-    } catch (err) {
-        console.error("n8n 전송 또는 처리 오류:", err);
-        alert(`서버 통신 또는 처리 중 오류가 발생했습니다: ${err.message}\n(UTM 링크는 생성되었으나 단축 및 이력/시트 저장은 실패했을 수 있습니다)\n최종 URL: ${formDataForN8n.final_url}`);
-        document.getElementById("responseContainer").style.display = "none";
-    } finally {
-        hideLoading();
-        await renderHistoryTable(); // 항상 최신 이력으로 테이블 다시 그림
-        document.getElementById("utmForm").reset();
-        // 드롭다운 기본값 재설정 및 최종 URL 필드 업데이트
-        dropdownBaseIds.forEach(baseId => { // 필수 항목 기본값 재설정
-            if (baseId === 'source') setSelectedDropdownValue(baseId, 'google');
-            else if (baseId === 'medium') setSelectedDropdownValue(baseId, 'cpc');
-            else if (baseId === 'ad_type') setSelectedDropdownValue(baseId, 'da');
-            else if (baseId === 'device_type') setSelectedDropdownValue(baseId, 'mo');
-            else setSelectedDropdownValue(baseId, ''); // 나머지 선택적 항목은 '-- 선택하세요 --'
-        });
-        updateFinalURL();
-    }
-});
-
-// 드롭다운 값을 설정하는 헬퍼 함수 (필요시 사용)
-function setSelectedDropdownValue(baseId, valueToSet) {
-    const selectedValueDiv = document.getElementById(`${baseId}_selected_value`);
-    const hiddenInput = document.getElementById(baseId);
-    const optionsList = document.getElementById(`${baseId}_options_list`);
-
-    if (!selectedValueDiv || !hiddenInput || !optionsList) return;
-
-    if (valueToSet === '') { // "-- 선택하세요 --" 로 초기화
-        selectedValueDiv.textContent = '-- 선택하세요 --';
-        hiddenInput.value = '';
-        return;
-    }
-
-    let optionFound = false;
-    optionsList.querySelectorAll('li[data-value]').forEach(li => {
-        if (li.dataset.value === valueToSet.toLowerCase()) {
-            selectedValueDiv.textContent = li.querySelector('.option-content')?.textContent || valueToSet;
-            hiddenInput.value = li.dataset.value;
-            optionFound = true;
-        }
-    });
-    if (!optionFound) { // 옵션 목록에 없는 값이라면 (예: 초기화 시 기본값)
-         selectedValueDiv.textContent = valueToSet; // 표시 텍스트만이라도 설정
-         hiddenInput.value = valueToSet.toLowerCase();
-    }
-}
-</script>
-<!-- <script>
+    </script>
+    <!-- <script>
   document.getElementById('utmForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -1037,4 +1561,6 @@ function setSelectedDropdownValue(baseId, valueToSet) {
   });
 </script> -->
 
-</body></html>
+</body>
+
+</html>
