@@ -1338,7 +1338,7 @@
                 // 직접 입력 필드 (text input) 와 커스텀 드롭다운 (hidden input) 구분
                 if (inputElement.name.endsWith('_form')) { // 예: campaign_date_form, content_detail_form 등
                     elementValue = inputElement.value.trim(); // 원본 텍스트 값 사용 (필요시 소문자화)
-                    if (elementValue === "") elementValue = "n"; // 빈 값은 "n"으로 처리
+                    if (!elementValue) elementValue = "n"; // 빈 값은 "n"으로 처리
                 } else { // 드롭다운 (hidden input 사용)
                     elementValue = getValueOrN(param.id); // getValueOrN은 이미 소문자화 및 "n" 처리
                 }
